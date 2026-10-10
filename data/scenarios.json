@@ -1,0 +1,192 @@
+
+[
+  {
+    "event_id": "event_oil_supply",
+    "headline": "Illustrative crude oil supply disruption",
+    "event_type": "COMMODITY_SUPPLY",
+    "summary": "A hypothetical reduction in crude oil supply may raise oil prices and increase costs for oil-importing economies.",
+    "source": null,
+    "keywords": ["crude oil", "oil supply", "oil prices", "opec", "supply disruption"],
+    "nodes": [
+      {
+        "node_id": "oil_crude",
+        "label": "Crude Oil",
+        "node_type": "COMMODITY",
+        "description": "Global crude oil supply and pricing."
+      },
+      {
+        "node_id": "india",
+        "label": "India",
+        "node_type": "COUNTRY",
+        "description": "An economy exposed to imported energy costs."
+      },
+      {
+        "node_id": "transport_india",
+        "label": "Indian Transportation Sector",
+        "node_type": "SECTOR",
+        "description": "Transportation businesses exposed to fuel costs."
+      }
+    ],
+    "edges": [
+      {
+        "edge_id": "oil_transport_cost",
+        "source_node_id": "oil_crude",
+        "target_node_id": "transport_india",
+        "relationship": "MAY_INCREASE_FUEL_COSTS",
+        "strength": 0.65,
+        "direction": "NEGATIVE",
+        "explanation": "Higher crude oil prices can raise fuel costs for transportation businesses, all else equal.",
+        "evidence_type": "HYPOTHESIS",
+        "evidence": [],
+        "limitations": [
+          "Illustrative relationship; no event-specific evidence is attached.",
+          "The impact depends on fuel prices, taxes, contracts, and pass-through."
+        ]
+      },
+      {
+        "edge_id": "oil_india_import",
+        "source_node_id": "oil_crude",
+        "target_node_id": "india",
+        "relationship": "MAY_INCREASE_IMPORT_COSTS",
+        "strength": 0.65,
+        "direction": "NEGATIVE",
+        "explanation": "Higher crude oil prices may increase the import bill of an oil-importing economy.",
+        "evidence_type": "HYPOTHESIS",
+        "evidence": [],
+        "limitations": [
+          "Illustrative relationship; not a measurement of a specific event.",
+          "The overall effect depends on exchange rates, demand, and other economic conditions."
+        ]
+      }
+    ],
+    "limitations": [
+      "Hypothetical scenario, not verified live news.",
+      "Relationship strengths are provisional demonstration values, not calibrated estimates."
+    ]
+  },
+  {
+    "event_id": "event_rbi_rate",
+    "headline": "Illustrative RBI interest-rate increase",
+    "event_type": "CENTRAL_BANK_RATE",
+    "summary": "A hypothetical RBI policy-rate increase may raise borrowing costs and affect credit demand.",
+    "source": null,
+    "keywords": ["rbi", "reserve bank of india", "repo rate", "indian interest rates", "rate hike"],
+    "nodes": [
+      {
+        "node_id": "rbi_rate",
+        "label": "RBI Policy Rate",
+        "node_type": "INDICATOR",
+        "description": "The Reserve Bank of India's policy interest rate."
+      },
+      {
+        "node_id": "india_credit",
+        "label": "Indian Credit Demand",
+        "node_type": "INDICATOR",
+        "description": "Demand for borrowing by households and businesses."
+      },
+      {
+        "node_id": "india_banks",
+        "label": "Indian Banking Sector",
+        "node_type": "SECTOR",
+        "description": "Banks exposed to changes in lending rates and credit demand."
+      }
+    ],
+    "edges": [
+      {
+        "edge_id": "rbi_credit_demand",
+        "source_node_id": "rbi_rate",
+        "target_node_id": "india_credit",
+        "relationship": "MAY_REDUCE_CREDIT_DEMAND",
+        "strength": 0.60,
+        "direction": "NEGATIVE",
+        "explanation": "Higher policy rates can increase borrowing costs and reduce demand for credit, all else equal.",
+        "evidence_type": "HYPOTHESIS",
+        "evidence": [],
+        "limitations": [
+          "Illustrative relationship; no specific policy announcement is being analyzed.",
+          "Transmission depends on bank lending rates, expectations, and economic conditions."
+        ]
+      },
+      {
+        "edge_id": "rbi_bank_effect",
+        "source_node_id": "rbi_rate",
+        "target_node_id": "india_banks",
+        "relationship": "MAY_CHANGE_BANK_MARGINS",
+        "strength": 0.45,
+        "direction": "MIXED",
+        "explanation": "Rate changes can affect bank funding costs, lending yields, and credit quality in different ways.",
+        "evidence_type": "HYPOTHESIS",
+        "evidence": [],
+        "limitations": [
+          "The net effect varies by bank and by the speed at which deposit and lending rates adjust."
+        ]
+      }
+    ],
+    "limitations": [
+      "Hypothetical scenario, not a report of an actual RBI decision.",
+      "Relationship strengths are provisional demonstration values."
+    ]
+  },
+  {
+    "event_id": "event_fed_rate",
+    "headline": "Illustrative US Federal Reserve interest-rate increase",
+    "event_type": "CENTRAL_BANK_RATE",
+    "summary": "A hypothetical Federal Reserve rate increase may affect US financial conditions and global capital flows.",
+    "source": null,
+    "keywords": ["federal reserve", "fed rate", "fed funds rate", "us interest rates", "fed rate hike"],
+    "nodes": [
+      {
+        "node_id": "fed_rate",
+        "label": "US Federal Reserve Policy Rate",
+        "node_type": "INDICATOR",
+        "description": "The US central bank's policy interest rate."
+      },
+      {
+        "node_id": "us_dollar",
+        "label": "US Dollar",
+        "node_type": "ASSET",
+        "description": "The US currency, affected by many economic and market factors."
+      },
+      {
+        "node_id": "emerging_markets",
+        "label": "Emerging Markets",
+        "node_type": "ASSET",
+        "description": "Financial markets exposed to global interest rates and capital flows."
+      }
+    ],
+    "edges": [
+      {
+        "edge_id": "fed_dollar",
+        "source_node_id": "fed_rate",
+        "target_node_id": "us_dollar",
+        "relationship": "MAY_SUPPORT_DOLLAR",
+        "strength": 0.50,
+        "direction": "POSITIVE",
+        "explanation": "Higher US rates may support the dollar if they improve relative returns, all else equal.",
+        "evidence_type": "HYPOTHESIS",
+        "evidence": [],
+        "limitations": [
+          "Currency movements also depend on expectations, other central banks, and risk sentiment."
+        ]
+      },
+      {
+        "edge_id": "fed_emerging_markets",
+        "source_node_id": "fed_rate",
+        "target_node_id": "emerging_markets",
+        "relationship": "MAY_PRESSURE_CAPITAL_FLOWS",
+        "strength": 0.55,
+        "direction": "NEGATIVE",
+        "explanation": "Higher US yields may make some dollar assets more attractive and pressure some emerging-market assets.",
+        "evidence_type": "HYPOTHESIS",
+        "evidence": [],
+        "limitations": [
+          "Effects vary across countries, assets, and market conditions."
+        ]
+      }
+    ],
+    "limitations": [
+      "Hypothetical scenario, not a report of an actual Fed decision.",
+      "Relationship strengths are provisional demonstration values."
+    ]
+  }
+]

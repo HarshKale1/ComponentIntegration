@@ -1,0 +1,66 @@
+
+{
+  "matched": true,
+  "event": {
+    "event_id": "event_oil_supply",
+    "headline": "Illustrative crude oil supply disruption",
+    "event_type": "COMMODITY_SUPPLY",
+    "summary": "A hypothetical oil supply disruption may increase crude prices and affect India's transport costs and import expenditure.",
+    "source": null,
+    "nodes": [
+      {
+        "node_id": "oil_crude",
+        "label": "Crude Oil",
+        "node_type": "COMMODITY",
+        "description": "Global crude oil supply and prices"
+      },
+      {
+        "node_id": "india",
+        "label": "India",
+        "node_type": "COUNTRY",
+        "description": "An oil-importing country"
+      },
+      {
+        "node_id": "transport_india",
+        "label": "Indian Transport",
+        "node_type": "SECTOR",
+        "description": "Transport sector exposed to fuel costs"
+      }
+    ],
+    "edges": [
+      {
+        "edge_id": "oil_transport_cost",
+        "source_node_id": "oil_crude",
+        "target_node_id": "transport_india",
+        "relationship": "Fuel cost exposure",
+        "strength": 0.65,
+        "direction": "NEGATIVE",
+        "explanation": "Higher crude prices may increase fuel and transport costs.",
+        "evidence_type": "HYPOTHESIS",
+        "evidence": [],
+        "limitations": [
+          "Illustrative relationship, not verified against current data."
+        ]
+      },
+      {
+        "edge_id": "oil_india_import",
+        "source_node_id": "oil_crude",
+        "target_node_id": "india",
+        "relationship": "Oil import exposure",
+        "strength": 0.65,
+        "direction": "NEGATIVE",
+        "explanation": "Higher crude prices may increase India's oil import expenditure.",
+        "evidence_type": "HYPOTHESIS",
+        "evidence": [],
+        "limitations": [
+          "Actual impact depends on prices, exchange rates, and policy responses."
+        ]
+      }
+    ],
+    "limitations": [
+      "This is mock demonstration data, not verified live news.",
+      "Strength values are provisional and are not probabilities."
+    ]
+  },
+  "message": "Matched a predefined illustrative scenario using keywords. This is not verified live-news analysis."
+}

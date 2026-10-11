@@ -11,7 +11,7 @@ export default function EvidenceDrawer({ edge, onClose }) {
   const color = strengthColor(edge.strength);
 
   return (
-    <div className="fixed right-0 top-0 h-full w-[400px] bg-slate-900 border-l border-slate-700 p-5 overflow-y-auto z-50 shadow-2xl">
+    <div className="fixed right-0 top-0 z-50 h-full w-full overflow-y-auto border-l border-slate-700 bg-slate-900 p-5 shadow-2xl sm:w-[400px]">
       <div className="flex justify-between items-start">
         <h3 className="text-base font-semibold">Relationship Detail</h3>
         <button

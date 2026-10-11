@@ -64,3 +64,15 @@ def test_short_news_is_rejected():
     )
 
     assert response.status_code == 422
+
+def test_news_endpoint():
+    response = client.get("/news?limit=5")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert "count" in data
+    assert "articles" in data
+    assert isinstance(data["articles"], list)
+    assert data["count"] <= 5

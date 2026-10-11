@@ -51,7 +51,7 @@ export default function GraphView({ graph, onEdgeClick }) {
           },
         },
         {
-          selector: "edge[evidence_type = 'inferred_hypothesis']",
+          selector: "edge[evidence_type = 'HYPOTHESIS']",
           style: { "line-style": "dashed" },
         },
       ],

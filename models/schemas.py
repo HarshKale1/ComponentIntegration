@@ -1,4 +1,4 @@
-
+from datetime import date
 from enum import Enum
 from typing import Optional
 
@@ -135,3 +135,77 @@ class AnalysisResponse(APIModel):
     matched: bool
     event: Optional[EventGraph] = None
     message: str
+
+
+class CorroborationStatus(str, Enum):
+    UNVERIFIED = "unverified"
+    PARTIALLY_CORROBORATED = "partially_corroborated"
+    CORROBORATED = "corroborated"
+    CONTRADICTED = "contradicted"
+
+
+class CorroborationSource(APIModel):
+    source_name: str = Field(min_length=1)
+    url: str = Field(min_length=1)
+    supports_claim: Optional[bool] = None
+    explanation: str = ""
+    content_available: bool = False
+
+
+class CorroborationResult(APIModel):
+    claim: str = Field(min_length=1)
+    status: CorroborationStatus = CorroborationStatus.UNVERIFIED
+    sources_checked: int = Field(ge=0)
+    supporting_sources: int = Field(ge=0)
+    contradicting_sources: int = Field(ge=0)
+    sources: list[CorroborationSource] = Field(default_factory=list)
+    limitations: list[str] = Field(default_factory=list)
+
+
+class CorroborationRequest(APIModel):
+    claim: str = Field(min_length=10, max_length=20000)
+    query: str = Field(min_length=2, max_length=500)
+    limit: int = Field(default=5, ge=1, le=10)
+    exclude_url: str | None = None
+
+
+class EventGraphRequest(APIModel):
+    headline: str = Field(min_length=5, max_length=1000)
+    url: str | None = None
+
+
+class EventImpactRequest(APIModel):
+    ticker: str = Field(min_length=1, max_length=20)
+    event_date: date
+    window_days: int = Field(default=7, ge=1, le=30)
+
+
+class NewsImpactWorkflowRequest(APIModel):
+    query: str = Field(
+        default="finance OR stock market OR economy",
+        min_length=2,
+        max_length=500,
+    )
+    limit: int = Field(default=5, ge=1, le=10)
+    ticker: str | None = Field(default=None, min_length=1, max_length=20)
+    event_date: date | None = None
+    window_days: int = Field(default=7, ge=1, le=30)
+
+    @model_validator(mode="after")
+    def validate_market_inputs(self):
+        if (self.ticker is None) != (self.event_date is None):
+            raise ValueError(
+                "ticker and event_date must either both be provided "
+                "or both be omitted"
+            )
+
+        return self
+
+
+class NewsImpactWorkflowResponse(APIModel):
+    success: bool
+    article: dict
+    content_length: int
+    event_graph: EventGraph
+    market_impact: dict | None = None
+    limitations: list[str] = Field(default_factory=list)

@@ -109,7 +109,7 @@ a{color:var(--accent)}
 
 /* stage */
 .stagewrap{margin-top:8px}
-.stage{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px;min-height:460px;align-items:stretch}
+.stage{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;min-height:560px;align-items:stretch}
 .stage > .panel{display:flex;flex-direction:column}
 .subtoggle{display:none;margin-bottom:8px}
 .graphp{position:relative;padding:8px 10px 10px}
@@ -120,7 +120,7 @@ a{color:var(--accent)}
 .filters{display:none;flex-wrap:wrap;align-items:center;gap:6px;padding:4px 4px 8px}
 .filters.on{display:flex}
 .filters select{background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font:inherit;font-size:12px}
-svg.vp{display:block;width:100%;min-height:420px;height:auto;touch-action:none;user-select:none;-webkit-user-select:none}
+svg.vp{display:block;width:100%;min-height:560px;height:auto;touch-action:none;user-select:none;-webkit-user-select:none}
 .zoomctl{position:absolute;right:16px;bottom:16px;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:5px;background:var(--panel2);overflow:hidden}
 .zoomctl button{width:30px;height:30px;display:grid;place-items:center;color:var(--fg)}
 .zoomctl button:hover{background:var(--line2)}
@@ -131,8 +131,8 @@ svg.vp{display:block;width:100%;min-height:420px;height:auto;touch-action:none;u
 .dim{opacity:.18}
 .mapp{position:relative;padding:8px 10px 10px;display:flex;flex-direction:column}
 .mapp h3{margin:2px 4px 6px;font-size:15px}
-.mapbox{position:relative;flex:1;min-height:440px;border-radius:5px;background:radial-gradient(120% 90% at 50% 40%,#0A2342,#06152A);overflow:hidden}
-.mapbox svg.vp{height:100%;min-height:440px}
+.mapbox{position:relative;flex:1;min-height:560px;border-radius:5px;background:radial-gradient(120% 90% at 50% 40%,#0A2342,#06152A);overflow:hidden}
+.mapbox svg.vp{height:100%;min-height:560px}
 .land{fill:#123252;stroke:#1D4A73;stroke-width:.35}
 .cshape{cursor:pointer;stroke:#04101F;stroke-width:.4;opacity:.92}
 .cshape:hover,.cshape:focus-visible{opacity:1;stroke:#fff;stroke-width:.7;outline:none}
@@ -328,6 +328,83 @@ svg.vp{display:block;width:100%;min-height:420px;height:auto;touch-action:none;u
   .overall .conf{display:none}
 }
 @media (prefers-reduced-motion:reduce){.drawer{transition:none}}
+
+/* ============ UI POLISH ============ */
+/* Softer panels with subtle shadow */
+.panel{box-shadow:0 1px 0 rgba(255,255,255,.02), 0 8px 24px rgba(0,0,0,.18);transition:border-color .18s}
+.panel:hover{border-color:#1e4568}
+
+/* Refined panel headers */
+.ph{padding:12px 14px 8px;border-bottom:1px solid var(--line2);margin-bottom:8px}
+.ph h3{font-size:13.5px;letter-spacing:.2px;font-weight:600}
+.ph .link{font-size:11.5px;opacity:.85}
+.ph .link:hover{opacity:1}
+
+/* Buttons: unify size, add lift on hover */
+.btn, .chip, .seg button, .winsel button, .iconbtn{transition:background .15s, border-color .15s, color .15s, transform .1s}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+
+/* Softer pills */
+.pill{padding:0 10px;height:21px;font-weight:600;letter-spacing:.15px}
+
+/* Interactive rows/cards lift on hover */
+.stock-card:hover, .pathrow:hover, .tbl tbody tr.clk:hover td{transform:none;background:#0D3560}
+
+/* Section rhythm inside main */
+#main > section.panel{margin-bottom:10px}
+#stagewrap, .trio{margin-top:10px}
+
+/* Custom scrollbars (webkit) */
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#173B5D;border-radius:5px;border:2px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:#22517d}
+
+/* Tabs: cleaner */
+.tabs button{border-radius:6px;padding:8px 18px;font-size:12.5px;letter-spacing:.15px}
+.tabs button[aria-selected="true"]{box-shadow:0 2px 8px rgba(38,132,255,.35)}
+
+/* Legend & banner subtleties */
+.legend{opacity:.9}
+.banner{opacity:.85;font-style:italic}
+
+/* News cards: nicer */
+.article-btn{padding:14px 16px;transition:border-color .15s, background .15s, transform .1s}
+.article-btn:hover{transform:translateX(2px)}
+
+/* Drawer: better shadow */
+.drawer{box-shadow:-20px 0 60px rgba(0,0,0,.55)}
+
+/* Nav pills */
+.nav button{transition:background .15s, border-color .15s, color .15s}
+.nav button[aria-current="page"]{box-shadow:inset 0 0 0 1px #2B63A0}
+
+/* Top bar polish */
+.top{backdrop-filter:blur(6px);background:rgba(4,16,31,.94)}
+
+/* Skeleton shimmer for loading text */
+@keyframes skeletonPulse{0%{opacity:.35}50%{opacity:.7}100%{opacity:.35}}
+.banner.loading, .stock-card .banner, #stocks-body > p.banner{animation:skeletonPulse 1.6s ease-in-out infinite}
+
+/* Better focus rings */
+button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible{outline:2px solid #2684FF;outline-offset:2px;border-radius:4px}
+
+/* Smoother chart tooltips */
+#ht rect{filter:drop-shadow(0 4px 10px rgba(0,0,0,.5))}
+
+/* Softer empty states */
+.panel .banner{padding:10px 14px}
+
+/* Section separators */
+section.panel + section.panel{margin-top:8px}
+
+/* Chat panel nicer */
+#ai-chat-panel{animation:slideUp .22s ease-out}
+@keyframes slideUp{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+#ai-chat-btn{animation:fadeIn .4s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+
 </style>
 
 <header class="top">
@@ -348,9 +425,9 @@ svg.vp{display:block;width:100%;min-height:420px;height:auto;touch-action:none;u
         <span class="badge"></span>
       </button>
       <div class="menu" id="bellmenu">
-        <div class="mi"><b>Analysis completed</b><small>Iran oil facilities event · 2 min ago</small></div>
-        <div class="mi"><b>Brent moved +8.0%</b><small>Watchlist alert · Brent Crude</small></div>
-        <div class="mi"><b>New related event</b><small>Shipping delays near the Gulf · queued</small></div>
+        <div class="mi"><b>Analysis completed</b><small>Iran oil facilities event ? 2 min ago</small></div>
+        <div class="mi"><b>Brent moved +8.0%</b><small>Watchlist alert ? Brent Crude</small></div>
+        <div class="mi"><b>New related event</b><small>Shipping delays near the Gulf ? queued</small></div>
       </div>
     </div>
     <div class="menuwrap">
@@ -428,6 +505,8 @@ let LIVE_COUNTRIES = null;
 let LIVE_SECTORS = null;
 let LIVE_ASSETS = null;
 let LIVE_PATHS = null;
+let LIVE_HISTORY = null;      // real historical series for the chart
+let LIVE_HISTORY_TICKER = 'CL=F';
 let LIVE_NODES = null;
 let LIVE_EDGES = null;
 let LIVE_SOURCES = null;
@@ -443,8 +522,8 @@ function evidenceClass(t) {
   return "inference";
 }
 function computeNodePositions(nodes) {
-  const cols = Math.ceil(Math.sqrt(nodes.length));
-  const spacingX = 150, spacingY = 100, startX = 80, startY = 60;
+  const cols = Math.max(3, Math.ceil(Math.sqrt(nodes.length * 1.6)));
+  const spacingX = 220, spacingY = 130, startX = 120, startY = 80;
   return nodes.map((n, i) => ({ ...n, x: startX + (i % cols) * spacingX, y: startY + Math.floor(i / cols) * spacingY }));
 }
 function adaptEvent(be) {
@@ -526,7 +605,7 @@ const STATIC_NEWS = [
 ];
 async function fetchNewsList() {
   try {
-    const res = await fetch(`${API_BASE}/news?query=(crude oil OR crude prices OR energy market OR oil supply OR OPEC)&limit=8`, { signal: AbortSignal.timeout(10000) });
+    const res = await fetch(`${API_BASE}/news?query=(stock market OR federal reserve OR inflation OR earnings OR nifty OR sensex OR gold prices OR geopolitical OR crude oil OR interest rates)&limit=20`, { signal: AbortSignal.timeout(10000) });
     if (!res.ok) throw new Error(`Backend ${res.status}`);
     const data = await res.json();
     if (data.articles && data.articles.length) return data.articles;
@@ -535,7 +614,14 @@ async function fetchNewsList() {
 }
 async function loadNews() {
   try {
-    NEWS_ARTICLES = await fetchNewsList();
+    var _raw = await fetchNewsList();
+    // Filter out obviously non-financial headlines
+    var _junk = /(skin|skincare|beauty|celebrity|bollywood|hollywood|cricket|IPL|recipe|diet|weight loss|hair|fashion|makeup|workout|yoga|astrology|horoscope|movie|film review|netflix|wedding|birthday|love|relationship|friendship|fitness|gadget|smartphone review|iphone review|game review)/i;
+    var _fin = /(stock|market|share|sensex|nifty|earnings|revenue|profit|fed|federal reserve|rbi|interest rate|inflation|gdp|economy|economic|crude|oil|gold|silver|rupee|dollar|trade|export|import|tariff|bank|finance|financial|investor|IPO|bond|yield|commodity|geopolitical|geopolitics|sanction|opec|energy|sector|company|corporate|quarter|fiscal|SEBI|SEC)/i;
+    NEWS_ARTICLES = _raw.filter(function(a){
+      var t = (a.title || '');
+      return !_junk.test(t) && _fin.test(t);
+    }).slice(0, 8);
     console.log("Loaded", NEWS_ARTICLES.length, "articles");
   } catch (err) { console.warn("News fetch failed:", err.message); NEWS_ARTICLES = STATIC_NEWS; }
   if (S.view === "home") renderDashboard($("#main"));
@@ -550,7 +636,7 @@ function renderNewsPanel() {
       ${NEWS_ARTICLES.map((a, i) => `
         <button class="article-btn" data-article-index="${i}">
           <b>${esc(a.title)}</b>
-          <small>${esc(a.source || "")} · ${esc((a.published_at || "").slice(0, 16))}</small>
+          <small>${esc(a.source || "")} ? ${esc((a.published_at || "").slice(0, 16))}</small>
         </button>
       `).join("")}
     </div>
@@ -559,11 +645,11 @@ function renderNewsPanel() {
 
 /* ============ fixture data ============ */
 const EVENT={id:'evt_001',cat:'Geopolitical Event',title:"Iran's Oil Facilities Attacked – Global Supply at Risk",
-  when:'Apr 19, 2025 · 08:32 AM',pub:'Reuters',url:'https://www.reuters.com/',
+  when:'Apr 19, 2025 ? 08:32 AM',pub:'Reuters',url:'https://www.reuters.com/',
   desc:'Reports of strikes on Iranian oil facilities raise concerns about potential supply disruptions in the Middle East, pushing crude oil prices up by 8%.',
   type:'Geopolitical Conflict',assets:'Crude Oil, Energy Stocks',move:'+8%',status:'processed'};
 const SOURCES={
-  s201:{pub:'Reuters',time:'Apr 19, 2025 · 08:32 AM',kind:'News report',q:'Event report describing strikes on oil facilities and the first reaction in crude futures. Illustrative summary.'},
+  s201:{pub:'Reuters',time:'Apr 19, 2025 ? 08:32 AM',kind:'News report',q:'Event report describing strikes on oil facilities and the first reaction in crude futures. Illustrative summary.'},
   s202:{pub:'EIA',time:'Apr 2025',kind:'Agency outlook',q:'Background on how supply interruptions feed into crude prices and then into fuel-intensive sectors. Illustrative summary.'},
   s203:{pub:'IMF',time:'Apr 2025',kind:'Economic outlook',q:'Background on energy price pass-through to consumer inflation and policy rates. Illustrative summary.'},
   s204:{pub:'Market data',time:'Apr 19, 2025',kind:'Price observations',q:'Brent futures closing prices around the event date, with provider and retrieval time stored. Illustrative fixture.'}
@@ -633,11 +719,11 @@ const SECTORS=[
   ['Real Estate','mod','f','Medium','1'],['Consumer Goods','low','d','Medium','1'],['Technology','low','d','Medium','1'],['Healthcare','low','d','Long','1']
 ];
 const ASSETS=[
-  ['Brent Crude','ICE · USD','+8.0%','high','u','1 day'],['Gold','Spot · USD','+0.67%','mod','f','1 day'],['S&P 500','NYSE · USD','+1.24%','low','d','1 day'],
-  ['NIFTY 50','NSE · INR','+1.18%','low','d','1 day'],['Energy equities (basket)','Index · USD','+3.1%','high','u','1 week']
+  ['Brent Crude','ICE ? USD','+8.0%','high','u','1 day'],['Gold','Spot ? USD','+0.67%','mod','f','1 day'],['S&P 500','NYSE ? USD','+1.24%','low','d','1 day'],
+  ['NIFTY 50','NSE ? INR','+1.18%','low','d','1 day'],['Energy equities (basket)','Index ? USD','+3.1%','high','u','1 week']
 ];
 const MKT=[['S&P 500','5,021.84','+1.24%',1],['NIFTY 50','22,789.60','+1.18%',1],['Brent Crude','86.42','-1.32%',0],['Gold','2,341.70','+0.67%',1]];
-const HIST=[['2019 · Iran tensions','+5.2%','+8.7%'],['2022 · Supply shock','+5.2%','+8.7%']];
+const HIST=[['2019 ? Iran tensions','+5.2%','+8.7%'],['2022 ? Supply shock','+5.2%','+8.7%']];
 const EVENTS=[
   {id:'evt_001',title:EVENT.title,type:'Geopolitical Conflict',date:'Apr 19, 2025',status:'processed'},
   {id:'evt_002',title:'Shipping delays reported near the Gulf',type:'Supply Chain',date:'Apr 18, 2025',status:'unprocessed'},
@@ -681,7 +767,24 @@ function go(v){
   if(v==='graph'){S.view='home';S.tab='graph';S.sub='graph'}
   if(v==='map'){S.view='home';S.tab='graph';S.sub='map'}
   closeDrawer();
-  renderNav();renderMain();window.scrollTo({top:0});
+  renderNav();renderMain();
+  // Smart scroll: for views that have specific anchors, scroll to them after a tick
+  setTimeout(function(){
+    var target = null;
+    if (v === 'graph')           target = document.getElementById('stagewrap');
+    else if (v === 'watchlist')  target = document.querySelector('.view h2');
+    else if (v === 'history')    target = document.getElementById('chartp');
+    else if (v === 'events')     target = document.querySelector('.view h2');
+    else if (v === 'reports')    target = document.querySelector('.view h2');
+    else if (v === 'settings')   target = document.querySelector('.view h2');
+    else if (v === 'stocks')     target = document.querySelector('.view h2');
+    else                         target = document.getElementById('main');
+    if (target && target.scrollIntoView) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0 });
+    }
+  }, 60);
   try{history.replaceState(null,'','#'+v)}catch(e){}
 }
 
@@ -739,7 +842,7 @@ function settingsView(m){
   $('#setsave').onclick=()=>{S.win=$('#setwin').value;toast('Preferences saved for this session')};
 }
 function renderEvents(m){
-  m.innerHTML=`<section class="panel view"><h2>Event Explorer</h2><div class="ep">GET /api/v1/events · POST /api/v1/events/{id}/process</div>
+  m.innerHTML=`<section class="panel view"><h2>Event Explorer</h2><div class="ep">GET /api/v1/events ? POST /api/v1/events/{id}/process</div>
   <div class="tscroll"><table class="tbl"><thead><tr><th>Event</th><th>Type</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody>
   ${EVENTS.map(e=>`<tr><td><b style="font-weight:500">${esc(e.title)}</b><div class="mono" style="color:var(--dim);font-size:11px">${e.id}</div></td><td>${esc(e.type)}</td><td>${e.date}</td>
    <td id="st-${e.id}">${statusChip(e)}</td>
@@ -779,7 +882,7 @@ function renderDashboard(m){
     <div class="evicon" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="1" stroke-linejoin="round">${ICON.flame}</svg></div>
     <div style="min-width:0"><span class="cat">${esc(e.cat)}</span>
       <h1>${esc(e.title)}</h1>
-      <div class="meta">${e.when} · <a href="${e.url}" target="_blank" rel="noopener noreferrer">${e.pub}</a></div>
+      <div class="meta">${e.when} ? <a href="${e.url}" target="_blank" rel="noopener noreferrer">${e.pub}</a></div>
       <p>${esc(e.desc)}</p></div>
     <div class="facts">
       <div class="fact"><small><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Event Type</small><b>${esc(e.type)}</b></div>
@@ -836,29 +939,61 @@ function renderDashboard(m){
 
   $$('#tabs button').forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;$$('#tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));renderStage()});
   renderStage();renderPaths();renderChart();
+  if (!LIVE_HISTORY) fetchHistory('CL=F');
 }
 
 function renderStage(){
   const w=$('#stagewrap');
   if(S.tab==='graph'){
-    w.innerHTML=`<div class="seg subtoggle" role="group" aria-label="Switch view"><button data-sub="graph" aria-pressed="${S.sub==='graph'}">Impact Graph</button><button data-sub="map" aria-pressed="${S.sub==='map'}">Country Map</button></div>
-    <div class="stage" id="stage" data-sub="${S.sub}" style="min-height:460px">
-      <section class="panel graphp" aria-label="Impact graph" id="graphp"></section>
-      <section class="panel mapp" aria-label="Country-wise impact" id="mapp"></section>
+    var _sub = S.sub || 'graph';
+    w.innerHTML=`<div class="seg subtoggle" role="group" aria-label="Switch view" style="display:inline-flex"><button data-sub="graph" aria-pressed="${_sub==='graph'}">Impact Graph</button><button data-sub="map" aria-pressed="${_sub==='map'}">Country Map</button></div>
+    <div class="stage" id="stage" data-sub="${_sub}" style="min-height:460px">
+      <section class="panel graphp" aria-label="Impact graph" id="graphp" style="${_sub==='graph'?'':'display:none'}"></section>
+      <section class="panel mapp" aria-label="Country-wise impact" id="mapp" style="${_sub==='map'?'':'display:none'}"></section>
     </div>`;
-    $$('.subtoggle button',w).forEach(b=>b.onclick=()=>{S.sub=b.dataset.sub;$('#stage').dataset.sub=S.sub;$$('.subtoggle button',w).forEach(x=>x.setAttribute('aria-pressed',x===b))});
-    renderGraph();renderMap();return;
+    $$('.subtoggle button',w).forEach(b=>b.onclick=()=>{
+      S.sub=b.dataset.sub;
+      $$('.subtoggle button',w).forEach(x=>x.setAttribute('aria-pressed',x===b));
+      var g=document.getElementById('graphp'), m=document.getElementById('mapp');
+      if(g) g.style.display = (S.sub==='graph') ? '' : 'none';
+      if(m) m.style.display = (S.sub==='map') ? '' : 'none';
+      // Redraw the newly visible panel
+      if (S.sub==='map') renderMap(); else renderGraph();
+    });
+    if (_sub==='map') renderMap(); else renderGraph();
+    return;
   }
   const Pn=(h,body)=>`<section class="panel"><div class="ph"><h3>${h}</h3></div>${body}</section>`;
   if(S.tab==='country') w.innerHTML=Pn('Country Impact',`<div class="tscroll"><table class="tbl"><thead><tr><th>Country</th><th>Severity</th><th>GDP (est.)</th><th>Exposure score</th><th>Mechanism</th><th></th></tr></thead><tbody>${(LIVE_COUNTRIES||COUNTRIES).map(c=>`<tr class="clk" data-c="${c.iso}"><td><b style="font-weight:600">${c.n}</b></td><td>${pill(c.lvl)}</td><td class="num">${c.gdp}%</td><td class="num">${c.sc.toFixed(1)}</td><td style="min-width:260px">${esc(c.desc)}</td><td><button class="link">Details →</button></td></tr>`).join('')}</tbody></table></div>`);
   if(S.tab==='sectors') w.innerHTML=Pn('Sectors',`<div class="tscroll"><table class="tbl"><thead><tr><th>Sector</th><th>Impact</th><th>Direction</th><th>Horizon</th><th>Evidence</th></tr></thead><tbody>${(LIVE_SECTORS||SECTORS).map(s=>`<tr><td>${s[0]}</td><td>${pill(s[1],s[1]==='mod'?'Medium':null)}</td><td>${arrow(s[2])}</td><td>${s[3]}</td><td class="num">${s[4]} source${s[4]>1?'s':''}</td></tr>`).join('')}</tbody></table></div>`);
   if(S.tab==='assets') w.innerHTML=Pn('Assets',`<div class="tscroll"><table class="tbl"><thead><tr><th>Asset</th><th>Venue</th><th>Observed move</th><th>Impact</th><th>Window</th></tr></thead><tbody>${(LIVE_ASSETS||ASSETS).map(a=>`<tr><td>${a[0]}</td><td>${a[1]}</td><td class="num">${a[2]}</td><td>${pill(a[3],a[3]==='mod'?'Medium':null)}</td><td>${a[5]}</td></tr>`).join('')}</tbody></table></div><p class="banner" style="padding:0 12px 10px">Observed moves show association with the event date, not proven causation.</p>`);
   if(S.tab==='rels') w.innerHTML=Pn('Key Relationships',`<div class="tscroll"><table class="tbl"><thead><tr><th>From</th><th>Relationship</th><th>To</th><th>Score</th><th>Class</th></tr></thead><tbody>${[...(LIVE_EDGES||EDGES)].sort((a,b)=>b.s-a.s).map(e=>`<tr class="clk" data-e="${e.id}"><td>${nodeById(e.a).short}</td><td class="mono" style="font-size:11px">${e.t}</td><td>${nodeById(e.b).short}</td><td class="num">${e.s.toFixed(2)} ${pill(strLvl(e.s),strength(e.s))}</td><td><span class="dot" style="background:${CLS[e.cls].c}"></span>${CLS[e.cls].n}</td></tr>`).join('')}</tbody></table></div>`);
-  if(S.tab==='evid') w.innerHTML=Pn('Evidence',`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;padding:4px 12px 14px">${Object.entries(LIVE_SOURCES||SOURCES).map(([id,s])=>`<div class="src"><b>${s.pub}</b> <span class="mono" style="color:var(--dim);font-size:11px">${id}</span><small>${s.kind} · ${s.time}</small><q>${esc(s.q)}</q></div>`).join('')||'<p class="banner">No sources for the current event.</p>'}</div>`);
+  if(S.tab==='evid'){
+    var _srcObj = LIVE_SOURCES && Object.keys(LIVE_SOURCES).length ? LIVE_SOURCES : (SOURCES && Object.keys(SOURCES).length ? SOURCES : null);
+    if (_srcObj) {
+      w.innerHTML = Pn('Evidence', `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;padding:4px 12px 14px">${Object.entries(_srcObj).map(([id,s])=>`<div class="src"><b>${s.pub}</b> <span class="mono" style="color:var(--dim);font-size:11px">${id}</span><small>${s.kind} \u00b7 ${s.time}</small><q>${esc(s.q)}</q></div>`).join('')}</div>`);
+    } else {
+      var _edges = (LIVE_EDGES || EDGES || []);
+      var _trails = _edges.map(function(e){
+        var a = nodeById(e.a), b = nodeById(e.b);
+        var cls = CLS[e.cls] || { n: e.cls || 'Unclassified', c: '#8FA6C0' };
+        return '<div class="src">' +
+          '<b>' + esc((a ? a.short : e.a)) + ' \u2192 ' + esc((b ? b.short : e.b)) + '</b>' +
+          ' <span class="mono" style="color:var(--dim);font-size:11px">' + esc(e.t) + ' \u00b7 ' + esc(cls.n) + '</span>' +
+          '<small>Strength ' + e.s.toFixed(2) + '</small>' +
+          '<q>' + esc(e.exp || e.explanation || 'No explanation recorded.') + '</q>' +
+          (e.lim ? '<div style="margin-top:6px;font-size:11px;color:var(--muted)"><b>Limitations:</b> ' + esc(e.lim) + '</div>' : '') +
+          '</div>';
+      }).join('');
+      w.innerHTML = Pn('Evidence Trails',
+        '<p class="banner" style="padding:0 12px 8px">The AI did not attach external sources to these edges. Below are the reasoning trails, evidence classifications, and stated limitations for each relationship.</p>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:8px;padding:4px 12px 14px">' + _trails + '</div>');
+    }
+  }
   $$('[data-c]',w).forEach(r=>r.onclick=()=>openCountry(r.dataset.c));
   $$('[data-e]',w).forEach(r=>r.onclick=()=>openEdge(r.dataset.e));
 }
-const arrow=d=>d==='u'?'<span class="arr u" title="Rising impact" aria-label="Rising">↑</span>':d==='d'?'<span class="arr d" title="Falling impact" aria-label="Falling">↓</span>':'<span class="arr f" title="Flat or mixed" aria-label="Flat or mixed">→</span>';
+const arrow=d=>d==='u'?'<span class="arr u" title="Rising impact" aria-label="Rising">\u2191</span>':d==='d'?'<span class="arr d" title="Falling impact" aria-label="Falling">\u2193</span>':'<span class="arr f" title="Flat or mixed" aria-label="Flat or mixed">\u2192</span>';
 
 function viewport(svg,base,onChange){
   const a=(svg.getAttribute('viewBox')||'').split(/\s+/).map(Number);
@@ -907,6 +1042,7 @@ function edgeGeom(e){
   return {d:`M${x1.toFixed(1)} ${y1.toFixed(1)} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`,mx:.25*x1+.5*cx+.25*x2,my:.25*y1+.5*cy+.25*y2};
 }
 function renderGraph(){
+  renderGraph.vb = null;
   const g=$('#graphp');if(!g)return;
   const {nodes,edges}=visibleGraph();
   const allEdges = LIVE_EDGES || EDGES;
@@ -943,10 +1079,10 @@ function renderGraph(){
       ${Object.keys(S.types).map(t=>`<button class="chip" data-type="${t}" aria-pressed="${!!S.types[t]}">${t}</button>`).join('')}
       <select id="relsel" aria-label="Relationship type"><option value="ALL">All relationship types</option>${relTypes.map(t=>`<option ${S.rel===t?'selected':''}>${t}</option>`).join('')}</select>
     </div>
-    <svg class="vp" id="gsvg" viewBox="0 0 540 440" role="group" aria-label="Impact graph. Arrows point from cause to effect.">
+    <svg class="vp" id="gsvg" viewBox="0 0 900 560" role="group" aria-label="Impact graph. Arrows point from cause to effect.">
       <defs>${marker('m-s',COL.sev)}${marker('m-m',COL.high)}${marker('m-w',COL.mild)}${marker('m-sel','#5AA2FF')}
         <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter></defs>
-      <rect x="0" y="0" width="540" height="440" fill="transparent"/>
+      <rect x="0" y="0" width="900" height="560" fill="transparent"/>
       <g id="gview">${edgeSvg}${nodeSvg}</g>
     </svg>
     <div class="zoomctl"><button id="gzi" aria-label="Zoom in"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
@@ -954,9 +1090,9 @@ function renderGraph(){
       <button id="gfit" aria-label="Fit to screen and reset"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
     ${edges.length===0?'<p class="banner" style="padding:0 6px">No relationships match the current filters.</p>':''}`;
   const svg=$('#gsvg');
-  if(renderGraph.vb){svg.setAttribute('viewBox',renderGraph.vb)}
-  const vp=viewport(svg,{x:0,y:0,w:540,h:440},v=>{renderGraph.vb=`${v.x} ${v.y} ${v.w} ${v.h}`});
-  $('#gzi').onclick=vp.zoomIn;$('#gzo').onclick=vp.zoomOut;$('#gfit').onclick=()=>{renderGraph.vb=null;S.selNode=S.selEdge=S.selPath=null;closeDrawer();renderGraph();renderPaths()};
+  // Always start from the full view on rerender. Interaction-only cache is preserved via svg._userVb.
+  const vp=viewport(svg,{x:0,y:0,w:900,h:560},v=>{renderGraph.vb=`${v.x} ${v.y} ${v.w} ${v.h}`});
+  $('#gzi').onclick=vp.zoomIn;$('#gzo').onclick=vp.zoomOut;$('#gfit').onclick=()=>{S.selNode=S.selEdge=S.selPath=null;closeDrawer();renderGraph();renderPaths()};
   svg.addEventListener('click',ev=>{
     if(svg._moved&&Date.now()-svg._moved<250)return;
     const h=ev.target.closest('[data-hit]');
@@ -1017,7 +1153,7 @@ function renderMap(){
   svg.addEventListener('pointermove',e=>{const h=e.target.closest('[data-iso]');
     if(!h){tip.style.display='none';return}
     const iso=h.dataset.iso;const c=cdata(iso);
-    tip.innerHTML=iso==='GULF'?`<b>Gulf states</b><br>${LABEL.high} · exposure 7.4 / 10 (fixture)`:(c?`<b>${c.n}</b><br>${LABEL[c.lvl]} · exposure ${c.sc.toFixed(1)} / 10 · GDP ${c.gdp}% (est.)`:'');
+    tip.innerHTML=iso==='GULF'?`<b>Gulf states</b><br>${LABEL.high} ? exposure 7.4 / 10 (fixture)`:(c?`<b>${c.n}</b><br>${LABEL[c.lvl]} ? exposure ${c.sc.toFixed(1)} / 10 ? GDP ${c.gdp}% (est.)`:'');
     tip.style.display='block';tip.style.left=Math.min(innerWidth-250,e.clientX+14)+'px';tip.style.top=(e.clientY+14)+'px'});
   svg.addEventListener('pointerleave',()=>tip.style.display='none');
   const act=iso=>{if(iso==='GULF')return toast('Gulf states are grouped in this fixture. Country detail is not available.');openCountry(iso)};
@@ -1037,18 +1173,70 @@ function renderPaths(){
   el.innerHTML=`<div class="ph"><h3>Key Impact Paths</h3><button class="link" id="allpaths">View All Paths →</button></div>
   <div class="paths">${_paths.map(p=>{const l=strLvl(p.score),c=strCol(p.score);
     return `<button class="pathrow" data-p="${p.id}" aria-pressed="${S.selPath===p.id}"><span class="rk" style="background:${c}">${p.rank}</span>
-    <span style="min-width:0"><b>${esc(pName(p))}</b><small>Strength: <span class="num">${p.score.toFixed(2)}</span> · ${p.len} link${p.len>1?'s':''}</small></span>${pill(l,strength(p.score))}</button>`}).join('')}</div>`;
+    <span style="min-width:0"><b>${esc(pName(p))}</b><small>Strength: <span class="num">${p.score.toFixed(2)}</span> ? ${p.len} link${p.len>1?'s':''}</small></span>${pill(l,strength(p.score))}</button>`}).join('')}</div>`;
   $$('[data-p]',el).forEach(b=>b.onclick=()=>openPath(b.dataset.p));
   $('#allpaths').onclick=()=>{S.tab='rels';$$('#tabs button').forEach(x=>x.setAttribute('aria-selected',x.dataset.t==='rels'));renderStage();$('#stagewrap').scrollIntoView({behavior:'smooth',block:'start'})};
 }
 
 const WINS={'3M':63,'6M':126,'1Y':252,'All':9999};
+async function fetchHistory(ticker) {
+  try {
+    const end = new Date();
+    const start = new Date(); start.setDate(start.getDate() - 400);
+    const fmt = d => d.toISOString().slice(0, 10);
+    const url = API_BASE + '/market/history?ticker=' + encodeURIComponent(ticker)
+              + '&start_date=' + fmt(start) + '&end_date=' + fmt(end);
+    const res = await fetch(url, { signal: AbortSignal.timeout(30000) });
+    if (!res.ok) throw new Error('Backend ' + res.status);
+    const data = await res.json();
+    LIVE_HISTORY = (data.prices || []).map(p => ({
+      t: new Date(p.date + 'T00:00:00Z').getTime(),
+      p: p.close
+    }));
+    LIVE_HISTORY_TICKER = data.ticker || ticker;
+    console.log('History loaded:', LIVE_HISTORY.length, 'points for', LIVE_HISTORY_TICKER);
+    if (typeof renderChart === 'function') renderChart();
+  } catch (err) {
+    console.warn('History fetch failed, using synthetic fallback:', err.message);
+    LIVE_HISTORY = null;
+    if (typeof renderChart === 'function') renderChart();
+  }
+}
+
 function renderChart(){
   const el=$('#chartp');if(!el)return;
-  const n=Math.min(WINS[S.win]+1,SERIES.length);const data=SERIES.slice(-n);
+  const _source = (LIVE_HISTORY && LIVE_HISTORY.length) ? LIVE_HISTORY : SERIES;
+  const n=Math.min(WINS[S.win]+1,_source.length);const data=_source.slice(-n);
   const ei=data.length-1;
   const pre=data.slice(0,ei);const preR=(pre[pre.length-1].p/pre[0].p-1)*100;
-  const moveR=(data[ei].p/data[ei-1].p-1)*100;
+  const moveR=(data.length>1)?((data[ei].p/data[ei-1].p-1)*100):0;
+
+  // Locate the event date within this series, if possible.
+  let _eventIdx = -1;
+  let _eventLabel = "Latest data";
+  let _eventMove = 0;
+  if (LIVE_EVENT && LIVE_EVENT.when) {
+    const m = String(LIVE_EVENT.when).match(/([A-Z][a-z]{2})\s+(\d{1,2}),\s+(\d{4})/);
+    if (m) {
+      const months = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+      const evtMs = Date.UTC(parseInt(m[3]), months[m[1]], parseInt(m[2]));
+      _eventLabel = m[1] + " " + m[2] + ", " + m[3];
+      // Find the closest data point at or before evtMs
+      let best = -1, bestDiff = Infinity;
+      for (let i = 0; i < data.length; i++) {
+        const diff = Math.abs(data[i].t - evtMs);
+        if (diff < bestDiff) { bestDiff = diff; best = i; }
+      }
+      if (best >= 0 && bestDiff < 1000 * 60 * 60 * 24 * 7) {
+        _eventIdx = best;
+        const prevIdx = best > 0 ? best - 1 : best;
+        if (prevIdx !== best && data[prevIdx].p) {
+          _eventMove = ((data[best].p / data[prevIdx].p) - 1) * 100;
+        }
+      }
+    }
+  }
+  const _showEventMarker = _eventIdx >= 0;
   const W=520,H=230,L=36,R=14,T=14,B=26;
   const min=Math.min(...data.map(d=>d.p)),max=Math.max(...data.map(d=>d.p));
   const y0=Math.floor((min-2)/10)*10,y1=Math.ceil((max+1)/10)*10;
@@ -1056,24 +1244,63 @@ function renderChart(){
   let ticks='';for(let v=y0;v<=y1;v+=10)ticks+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#173B5D" stroke-width=".6" stroke-dasharray="2 3"/><text x="${L-6}" y="${Y(v)+3}" text-anchor="end" font-size="9.5" fill="#8FA6C0" font-family="IBM Plex Mono,monospace">${v}</text>`;
   const xt=[];const step=Math.max(1,Math.round(data.length/5));
   for(let i=0;i<data.length-1;i+=step)xt.push(i);xt.push(ei);
-  const xlab=xt.filter(i=>i===ei?false:ei-i>step*.45).map(i=>`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="9.5" fill="#8FA6C0">${fmtM(data[i].t)}</text>`).join('')+`<text x="${X(ei)}" y="${H-8}" text-anchor="end" font-size="9.5" fill="#8FA6C0">Apr 2025</text>`;
+  const xlab=xt.filter(i=>i===ei?false:ei-i>step*.45).map(i=>`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="9.5" fill="#8FA6C0">${fmtM(data[i].t)}</text>`).join('')+`<text x="${X(ei)}" y="${H-8}" text-anchor="end" font-size="9.5" fill="#8FA6C0">${fmtM(data[ei].t)}</text>`;
   const line=data.map((d,i)=>`${i?'L':'M'}${X(i).toFixed(1)} ${Y(d.p).toFixed(1)}`).join('');
-  el.innerHTML=`<div class="ph"><h3>Historical Context</h3></div>
-    <div class="sub">Brent Crude Oil Price (USD/barrel)</div>
+  const _markerX = _showEventMarker ? X(_eventIdx) : X(ei);
+  const _markerY = _showEventMarker ? Y(data[_eventIdx].p) : Y(data[ei].p);
+  el.innerHTML=`<div class="ph"><h3>Historical Context</h3><select id="hist-ticker" style="background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font:inherit;font-size:11.5px"><option value="CL=F" selected>WTI Crude</option><option value="BZ=F">Brent Crude</option><option value="GC=F">Gold</option><option value="^GSPC">S&amp;P 500</option><option value="^NSEI">Nifty 50</option><option value="^DJI">Dow Jones</option><option value="EURUSD=X">EUR/USD</option></select></div>
+    <div class="sub" id="hist-sub">Crude Oil Price (USD)</div>
     <div class="chartwrap"><svg class="vp" id="csvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Brent crude price history ending at the event date.">
       <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2684FF" stop-opacity=".35"/><stop offset="1" stop-color="#2684FF" stop-opacity="0"/></linearGradient></defs>
       ${ticks}${xlab}
       <path d="${line}L${X(ei)} ${H-B}L${X(0)} ${H-B}z" fill="url(#cg)"/>
       <path d="${line}" fill="none" stroke="#2F8CFF" stroke-width="1.5" stroke-linejoin="round"/>
-      <line x1="${X(ei)}" x2="${X(ei)}" y1="${T}" y2="${H-B}" stroke="#FF4040" stroke-width="1" stroke-dasharray="3 3"/>
-      <circle cx="${X(ei)}" cy="${Y(data[ei].p)}" r="8" fill="#FF4040" opacity=".25"/><circle cx="${X(ei)}" cy="${Y(data[ei].p)}" r="4" fill="#FF4040" stroke="#fff" stroke-width="1"/>
+      ${_showEventMarker ? `<line x1="${_markerX}" x2="${_markerX}" y1="${T}" y2="${H-B}" stroke="#FF4040" stroke-width="1" stroke-dasharray="3 3"/>` : ""}
+      ${_showEventMarker ? `<circle cx="${_markerX}" cy="${_markerY}" r="8" fill="#FF4040" opacity=".25"/><circle cx="${_markerX}" cy="${_markerY}" r="4" fill="#FF4040" stroke="#fff" stroke-width="1"/>` : ""}
       <g id="hov" style="display:none"><line id="hl" y1="${T}" y2="${H-B}" stroke="#8FA6C0" stroke-width=".7"/><circle id="hc" r="3.5" fill="#2F8CFF" stroke="#fff" stroke-width="1"/>
       <g id="ht"><rect id="hr" width="104" height="30" rx="4" fill="#020A14" stroke="#173B5D"/><text id="ht1" x="8" y="13" font-size="9.5" fill="#8FA6C0"></text><text id="ht2" x="8" y="25" font-size="11" fill="#fff" font-family="IBM Plex Mono,monospace"></text></g></g>
-    </svg><div class="evlabel"><div>Event Date</div><div>Apr 19, 2025</div><b class="num">+${moveR.toFixed(0)}%</b></div></div>
-    <div class="winsel" role="group" aria-label="Observation window">${Object.keys(WINS).map(k=>`<button data-w="${k}" aria-pressed="${S.win===k}">${k}</button>`).join('')}<span>closing prices · USD</span></div>
+    </svg><div class="evlabel"><div>${_showEventMarker ? "Event Date" : "Latest Data"}</div><div>${_eventLabel}</div><b class="num">${_showEventMarker ? ((_eventMove>=0?"+":"") + _eventMove.toFixed(1) + "%") : ((moveR>=0?"+":"") + moveR.toFixed(1) + "%")}</b></div></div>
+    <div class="winsel" role="group" aria-label="Observation window">${Object.keys(WINS).map(k=>`<button data-w="${k}" aria-pressed="${S.win===k}">${k}</button>`).join('')}<span>closing prices ? USD</span></div>
     <div class="note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
-      <div>Similar past events: ${HIST.map(h=>h[0]).join(', ')}.<br>Avg. 1-week impact: <b class="num">${HIST[0][1]}</b> · Avg. 1-month impact: <b class="num">${HIST[0][2]}</b></div></div>`;
+      <div id="hist-note-inner"></div></div>`;
   $$('[data-w]',el).forEach(b=>b.onclick=()=>{S.win=b.dataset.w;renderChart()});
+  const _sel = $('#hist-ticker'); if (_sel) {
+    _sel.value = LIVE_HISTORY_TICKER;
+    _sel.onchange = () => { fetchHistory(_sel.value); };
+  }
+  const _sub = $('#hist-sub');
+  if (_sub) {
+    const _names = {'CL=F':'WTI Crude (USD)', 'BZ=F':'Brent Crude (USD)', 'GC=F':'Gold (USD)', '^GSPC':'S&P 500 (index)', '^NSEI':'Nifty 50 (INR)', '^DJI':'Dow Jones (index)', 'EURUSD=X':'EUR/USD' };
+    _sub.textContent = _names[LIVE_HISTORY_TICKER] || ('Price for ' + LIVE_HISTORY_TICKER);
+  }
+  // Fill the historical note with computed 1-week moves (plain strings, no template literals)
+  (function() {
+    var host = document.getElementById('hist-note-inner');
+    if (!host) return;
+    if (data.length < 6) {
+      host.textContent = 'Not enough data for move analysis.';
+      return;
+    }
+    var moves = [];
+    for (var i = 5; i < data.length; i++) {
+      var chg = ((data[i].p / data[i-5].p) - 1) * 100;
+      moves.push({ t: data[i].t, chg: chg });
+    }
+    var best = moves[0], worst = moves[0], sumAbs = 0;
+    for (var j = 0; j < moves.length; j++) {
+      if (moves[j].chg > best.chg) best = moves[j];
+      if (moves[j].chg < worst.chg) worst = moves[j];
+      sumAbs += Math.abs(moves[j].chg);
+    }
+    var avgAbs = sumAbs / moves.length;
+    function fmtChg(v) { return (v >= 0 ? "+" : "") + v.toFixed(1) + "%"; }
+    host.innerHTML =
+      'Recent 1-week moves for this asset:<br>' +
+      '<b>Best:</b> <span class="num" style="color:#2FBF71">' + fmtChg(best.chg) + '</span> (' + fmtD(best.t) + ') &nbsp;' +
+      '<b>Worst:</b> <span class="num" style="color:#FF4040">' + fmtChg(worst.chg) + '</span> (' + fmtD(worst.t) + ') &nbsp;' +
+      '<b>Avg move:</b> <span class="num">\u00B1' + avgAbs.toFixed(1) + '%</span>';
+  })();
+
   const svg=$('#csvg');
   svg.addEventListener('pointermove',e=>{const r=svg.getBoundingClientRect();const x=(e.clientX-r.left)/r.width*W;
     let i=Math.round((x-L)/(W-L-R)*(data.length-1));i=Math.max(0,Math.min(data.length-1,i));
@@ -1093,7 +1320,7 @@ function renderRail(){
     <div><small>Overall Market Impact</small><h2>High</h2><div class="bar"><i style="width:70%;background:var(--sev)"></i></div></div>
     <span class="conf num">78% confidence</span></section>
   <section class="panel"><div class="ph"><h3>Country Impact Analysis</h3></div>
-    ${(LIVE_COUNTRIES||COUNTRIES).map(c=>`<div class="crow"><div class="flag" aria-hidden="true">${c.iso==='OTH'?'···':c.iso==='EUU'?'EU':c.iso.slice(0,2)}</div>
+    ${(LIVE_COUNTRIES||COUNTRIES).map(c=>`<div class="crow"><div class="flag" aria-hidden="true">${c.iso==='OTH'?'???':c.iso==='EUU'?'EU':c.iso.slice(0,2)}</div>
       <div style="min-width:0"><b>${c.n}</b>${pill(c.lvl)}<p>${esc(c.desc)}</p></div>
       <div style="text-align:right"><span class="gdp"><span style="color:${c.lvl==='low'?'var(--muted)':'#FF8E8E'}">${c.gdp}%</span><small>GDP (est.)</small></span><br><button class="link dl" data-c="${c.iso}">Details →</button></div></div>`).join('')}
   </section>
@@ -1476,7 +1703,7 @@ const srcCard = id => {
   const sources = LIVE_SOURCES || SOURCES;
   const s = sources[id];
   if (!s) return `<div class="src"><b>${id}</b><small>Source details unavailable.</small></div>`;
-  return `<div class="src"><b>${s.pub}</b> <span class="mono" style="color:var(--dim);font-size:11px">${id}</span><small>${s.kind} · ${s.time}</small><q>${esc(s.q)}</q></div>`;
+  return `<div class="src"><b>${s.pub}</b> <span class="mono" style="color:var(--dim);font-size:11px">${id}</span><small>${s.kind} ? ${s.time}</small><q>${esc(s.q)}</q></div>`;
 };
 function wireDrawer(){
   $$('[data-oe]',$('#dbody')).forEach(b=>b.onclick=()=>openEdge(b.dataset.oe));
@@ -1517,12 +1744,12 @@ function openPath(id){
   const p=PATHS.find(x=>x.id===id);
   if(!p) { console.warn("path not found:", id); return; }
   const ed=p.ids.map(edgeById);  const prod=ed.reduce((a,e)=>a*e.s,1);
-  openDrawer(`Impact path · rank ${p.rank}`,pName(p),`
+  openDrawer(`Impact path ? rank ${p.rank}`,pName(p),`
     <div style="display:flex;gap:8px;align-items:center"><b class="num" style="font-size:22px">${p.score.toFixed(2)}</b>${pill(strLvl(p.score),strength(p.score))}<span style="color:var(--muted)">${p.len} links</span></div>
     <div><h4>How it is ranked</h4><p>Geometric mean of the edge scores:</p>
       <p class="mono" style="margin-top:6px;font-size:12px;border:1px solid var(--line);border-radius:5px;padding:8px;background:var(--panel2)">S(P) = (${ed.map(e=>e.s.toFixed(2)).join(' × ')})<sup>1/${p.len}</sup><br>= ${prod.toFixed(3)}<sup>1/${p.len}</sup> = ${p.score.toFixed(3)}</p>
       <p class="banner" style="margin-top:6px">A path-ranking score, not the probability that a company loses money.</p></div>
-    <div><h4>Links and evidence</h4><div class="conn">${ed.map((e,i)=>{const qa=nodeById(e.a),qb=nodeById(e.b);return `<button data-oe="${e.id}"><span><b style="font-weight:600">${i+1}.</b> ${esc(qa?qa.short:e.a)} → ${esc(qb?qb.short:e.b)}<br><small class="mono" style="color:var(--dim)">${e.t} · ${CLS[e.cls].n} · ${e.src.length} source${e.src.length>1?'s':''}</small></span><span class="num">${e.s.toFixed(2)}</span></button>`}).join('')}</div></div>
+    <div><h4>Links and evidence</h4><div class="conn">${ed.map((e,i)=>{const qa=nodeById(e.a),qb=nodeById(e.b);return `<button data-oe="${e.id}"><span><b style="font-weight:600">${i+1}.</b> ${esc(qa?qa.short:e.a)} → ${esc(qb?qb.short:e.b)}<br><small class="mono" style="color:var(--dim)">${e.t} ? ${CLS[e.cls].n} ? ${e.src.length} source${e.src.length>1?'s':''}</small></span><span class="num">${e.s.toFixed(2)}</span></button>`}).join('')}</div></div>
     <div><h4>Compare with other paths</h4><div class="conn">${PATHS.filter(x=>x.id!==id).map(x=>`<button data-op="${x.id}"><span>${esc(pName(x))}</span><span class="num">${x.score.toFixed(2)}</span></button>`).join('')}</div></div>
     <div><h4>Direct or multi-step</h4><div class="warn">${p.len>1?`Multi-step path. ${ed.some(e=>e.cls==='inference')?'At least one link is an unreviewed inference.':'All links are observed or established.'}`:'Direct link.'}</div></div>`);
   wireDrawer();refreshGraph();

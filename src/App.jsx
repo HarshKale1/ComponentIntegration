@@ -1,5 +1,5 @@
-
 import { useCallback, useEffect, useState } from "react";
+
 import { api } from "./api/client";
 import GraphView from "./components/GraphView";
 import EvidenceDrawer from "./components/EvidenceDrawer";
@@ -17,6 +17,7 @@ function publishedDate(article) {
   if (!article?.published_at) return todayLocal();
 
   const date = new Date(article.published_at);
+
   return Number.isNaN(date.getTime())
     ? todayLocal()
     : date.toISOString().slice(0, 10);
@@ -54,6 +55,7 @@ export default function App() {
   const [loadingNews, setLoadingNews] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [loadingMarket, setLoadingMarket] = useState(false);
+
   const [error, setError] = useState("");
   const [marketError, setMarketError] = useState("");
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -63,52 +65,76 @@ export default function App() {
   const [windowDays, setWindowDays] = useState(7);
   const [marketImpact, setMarketImpact] = useState(null);
 
-  const loadNews = useCallback(async (searchQuery = query) => {
+  // Fetch news and validate the API response before updating the UI.
+  const loadNews = useCallback(async (searchQuery = DEFAULT_QUERY) => {
     setLoadingNews(true);
     setError("");
 
     try {
       const result = await api.fetchNews(searchQuery, 20);
+
+      if (!Array.isArray(result)) {
+        throw new Error("Unexpected response from the news API.");
+      }
+
       setArticles(result);
       setLastUpdated(new Date());
 
-      if (!result.length) {
+      if (result.length === 0) {
         setError("No articles found. Try a different search query.");
       }
     } catch (err) {
+      console.error("Failed to fetch financial news:", err);
+
+      setArticles([]);
+
       setError(
         err.response?.data?.detail ||
           err.message ||
-          "Could not fetch Google News RSS. Check that FastAPI is running."
+          "Could not fetch financial news. Check that FastAPI is running on port 8010."
       );
     } finally {
       setLoadingNews(false);
     }
-  }, [query]);
+  }, []);
 
+  // Initial news load. Search submissions trigger additional loads.
   useEffect(() => {
     loadNews(DEFAULT_QUERY);
-  }, []); // Initial load only.
+  }, [loadNews]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    loadNews(query.trim() || DEFAULT_QUERY);
+  };
 
   const analyzeArticle = async (article) => {
+    if (!article?.title || !article?.url) {
+      setError("This article is missing its title or URL.");
+      return;
+    }
+
     setSelectedArticle(article);
     setEvent(null);
     setGraph(null);
     setSelectedEdge(null);
     setMarketImpact(null);
     setMarketError("");
+    setError("");
     setEventDate(publishedDate(article));
     setAnalyzing(true);
-    setError("");
 
     try {
       const result = await api.generateGraph(article);
 
-      // The backend returns an EventGraph validated by Pydantic.
       setEvent(result);
-      setGraph({ nodes: result.nodes, edges: result.edges });
+      setGraph({
+        nodes: Array.isArray(result.nodes) ? result.nodes : [],
+        edges: Array.isArray(result.edges) ? result.edges : [],
+      });
     } catch (err) {
-      console.error(err);
+      console.error("Event graph generation failed:", err);
+
       setError(
         err.response?.data?.detail ||
           err.message ||
@@ -142,9 +168,11 @@ export default function App() {
         eventDate,
         windowDays
       );
+
       setMarketImpact(result);
     } catch (err) {
-      console.error(err);
+      console.error("Historical market analysis failed:", err);
+
       setMarketError(
         err.response?.data?.detail ||
           err.message ||
@@ -156,7 +184,9 @@ export default function App() {
   };
 
   const percentage = Number(marketImpact?.percentage_change);
-  const hasPercentage = Number.isFinite(percentage);
+  const hasPercentage =
+    marketImpact?.percentage_change != null &&
+    Number.isFinite(percentage);
   const isPositive = percentage > 0;
 
   return (
@@ -171,20 +201,16 @@ export default function App() {
           </p>
         </div>
 
-        <form
-          className="flex min-w-0 flex-1 gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            loadNews(query);
-          }}
-        >
+        <form className="flex min-w-0 flex-1 gap-2" onSubmit={handleSearch}>
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search financial news, companies, sectors..."
-            className="min-w-0 w-full max-w-2xl rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm outline-none focus:border-blue-500"
+            className="w-full min-w-0 max-w-2xl rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm outline-none focus:border-blue-500"
           />
+
           <button
+            type="submit"
             disabled={loadingNews}
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold hover:bg-blue-500 disabled:opacity-50"
           >
@@ -195,7 +221,9 @@ export default function App() {
         <div className="text-xs text-slate-400">
           {lastUpdated
             ? `RSS updated ${lastUpdated.toLocaleTimeString()}`
-            : "Connecting to news"}
+            : loadingNews
+              ? "Fetching financial news..."
+              : "News not loaded yet"}
         </div>
       </header>
 
@@ -228,11 +256,12 @@ export default function App() {
               {articles.length} articles loaded
             </p>
             <button
-              onClick={() => loadNews(query)}
+              type="button"
+              onClick={() => loadNews(query.trim() || DEFAULT_QUERY)}
               disabled={loadingNews}
               className="mt-3 w-full rounded bg-slate-800 px-3 py-2 text-xs hover:bg-slate-700 disabled:opacity-50"
             >
-              Refresh RSS
+              {loadingNews ? "Refreshing..." : "Refresh RSS"}
             </button>
           </div>
 
@@ -252,13 +281,33 @@ export default function App() {
           )}
 
           <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-            <Metric label="News articles" value={articles.length} detail="Google News RSS" />
-            <Metric label="Graph nodes" value={graph?.nodes.length ?? "—"} detail="Entities identified" />
-            <Metric label="Relationships" value={graph?.edges.length ?? "—"} detail="Generated and schema-validated" />
+            <Metric
+              label="News articles"
+              value={articles.length}
+              detail="Google News RSS"
+            />
+            <Metric
+              label="Graph nodes"
+              value={graph?.nodes.length ?? "—"}
+              detail="Entities identified"
+            />
+            <Metric
+              label="Relationships"
+              value={graph?.edges.length ?? "—"}
+              detail="Generated and schema-validated"
+            />
             <Metric
               label="Market change"
-              value={hasPercentage ? `${percentage > 0 ? "+" : ""}${percentage.toFixed(2)}%` : "—"}
-              detail={marketImpact ? marketImpact.ticker : "Run historical analysis below"}
+              value={
+                hasPercentage
+                  ? `${percentage > 0 ? "+" : ""}${percentage.toFixed(2)}%`
+                  : "—"
+              }
+              detail={
+                marketImpact
+                  ? marketImpact.ticker
+                  : "Run historical analysis below"
+              }
             />
           </div>
 
@@ -268,18 +317,23 @@ export default function App() {
                 Select an article to extract its event graph.
               </p>
 
-              {loadingNews && articles.length === 0 && (
-                <p className="text-sm text-slate-400">Fetching articles...</p>
+              {loadingNews && (
+                <p className="mb-3 text-sm text-blue-300">
+                  Fetching financial articles...
+                </p>
               )}
 
               {!loadingNews && articles.length === 0 && !error && (
-                <p className="text-sm text-slate-400">No articles available.</p>
+                <p className="text-sm text-slate-400">
+                  No articles available. Try refreshing the feed.
+                </p>
               )}
 
               <div className="max-h-[400px] space-y-2 overflow-y-auto pr-1">
                 {articles.map((article, index) => (
                   <button
-                    key={`${article.url}-${index}`}
+                    type="button"
+                    key={article.url || `${article.title}-${index}`}
                     onClick={() => analyzeArticle(article)}
                     className={`block w-full rounded-lg border p-3 text-left transition ${
                       selectedArticle?.url === article.url
@@ -292,7 +346,9 @@ export default function App() {
                       <span>·</span>
                       <span>{article.published_at || "Date unavailable"}</span>
                     </div>
-                    <p className="text-sm font-medium leading-5">{article.title}</p>
+                    <p className="text-sm font-medium leading-5">
+                      {article.title || "Untitled article"}
+                    </p>
                   </button>
                 ))}
               </div>
@@ -304,9 +360,11 @@ export default function App() {
                   <h3 className="text-base font-semibold leading-6">
                     {selectedArticle.title}
                   </h3>
+
                   <p className="mt-2 text-sm text-slate-400">
                     {selectedArticle.source || "Google News RSS"}
                   </p>
+
                   <a
                     href={selectedArticle.url}
                     target="_blank"
@@ -317,6 +375,7 @@ export default function App() {
                   </a>
 
                   <button
+                    type="button"
                     onClick={() => analyzeArticle(selectedArticle)}
                     disabled={analyzing}
                     className="mt-4 block rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold hover:bg-blue-500 disabled:opacity-50"
@@ -329,26 +388,28 @@ export default function App() {
                       <p className="mb-2 text-xs uppercase tracking-wide text-slate-500">
                         Event summary
                       </p>
+
                       <p className="text-sm leading-6 text-slate-300">
-                        {event.summary}
+                        {event.summary || "No summary available."}
                       </p>
 
                       <div className="mt-3 flex flex-wrap gap-2">
                         <span className="rounded bg-slate-800 px-2 py-1 text-xs">
-                          {event.event_type}
+                          {event.event_type || "Event"}
                         </span>
                         <span className="rounded bg-slate-800 px-2 py-1 text-xs">
                           Schema validated
                         </span>
                       </div>
 
-                      {event.limitations?.length > 0 && (
-                        <ul className="mt-3 list-disc space-y-1 pl-5 text-xs text-amber-300">
-                          {event.limitations.map((item, i) => (
-                            <li key={i}>{item}</li>
-                          ))}
-                        </ul>
-                      )}
+                      {Array.isArray(event.limitations) &&
+                        event.limitations.length > 0 && (
+                          <ul className="mt-3 list-disc space-y-1 pl-5 text-xs text-amber-300">
+                            {event.limitations.map((item, index) => (
+                              <li key={index}>{item}</li>
+                            ))}
+                          </ul>
+                        )}
                     </div>
                   )}
                 </>
@@ -390,7 +451,8 @@ export default function App() {
           <Panel title="Historical market analysis">
             <p className="mb-4 text-sm leading-6 text-slate-400">
               Compare historical closing prices before and after the selected
-              event date. This measures observed movement, not proof of causation.
+              event date. This measures observed movement, not proof of
+              causation.
             </p>
 
             <form
@@ -453,7 +515,10 @@ export default function App() {
             )}
 
             {marketError && (
-              <p role="alert" className="mt-4 rounded-lg border border-red-800 bg-red-950/40 p-3 text-sm text-red-300">
+              <p
+                role="alert"
+                className="mt-4 rounded-lg border border-red-800 bg-red-950/40 p-3 text-sm text-red-300"
+              >
                 {marketError}
               </p>
             )}
@@ -463,46 +528,53 @@ export default function App() {
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                   <Metric
                     label="Observed price change"
-                    value={`${percentage > 0 ? "+" : ""}${percentage.toFixed(2)}%`}
+                    value={
+                      hasPercentage
+                        ? `${percentage > 0 ? "+" : ""}${percentage.toFixed(2)}%`
+                        : "Unavailable"
+                    }
                     detail={marketImpact.interpretation}
                   />
                   <Metric
                     label="Baseline close"
-                    value={marketImpact.baseline_close}
+                    value={marketImpact.baseline_close ?? "—"}
                     detail={marketImpact.baseline_date}
                   />
                   <Metric
                     label="Comparison close"
-                    value={marketImpact.comparison_close}
+                    value={marketImpact.comparison_close ?? "—"}
                     detail={marketImpact.comparison_date}
                   />
                 </div>
 
-                <div className={`rounded-lg border p-4 ${
-                  isPositive
-                    ? "border-emerald-800 bg-emerald-950/20"
-                    : percentage < 0
-                      ? "border-red-800 bg-red-950/20"
-                      : "border-slate-700 bg-slate-950"
-                }`}>
+                <div
+                  className={`rounded-lg border p-4 ${
+                    isPositive
+                      ? "border-emerald-800 bg-emerald-950/20"
+                      : hasPercentage && percentage < 0
+                        ? "border-red-800 bg-red-950/20"
+                        : "border-slate-700 bg-slate-950"
+                  }`}
+                >
                   <p className="font-semibold">
-                    {marketImpact.ticker}:{" "}
-                    {marketImpact.interpretation}
+                    {marketImpact.ticker || ticker}:{" "}
+                    {marketImpact.interpretation || "Price comparison completed"}
                   </p>
                   <p className="mt-1 text-sm text-slate-300">
-                    Closing-price comparison from {marketImpact.baseline_date}
-                    {" "}to {marketImpact.comparison_date}, around the event date
-                    {" "}{marketImpact.event_date}.
+                    Closing-price comparison from {marketImpact.baseline_date || "unknown"}
+                    {" "}to {marketImpact.comparison_date || "unknown"}, around
+                    the event date {marketImpact.event_date || eventDate}.
                   </p>
                 </div>
 
-                {marketImpact.limitations?.length > 0 && (
-                  <ul className="list-disc space-y-1 pl-5 text-xs text-amber-300">
-                    {marketImpact.limitations.map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ul>
-                )}
+                {Array.isArray(marketImpact.limitations) &&
+                  marketImpact.limitations.length > 0 && (
+                    <ul className="list-disc space-y-1 pl-5 text-xs text-amber-300">
+                      {marketImpact.limitations.map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
+                    </ul>
+                  )}
               </div>
             )}
           </Panel>

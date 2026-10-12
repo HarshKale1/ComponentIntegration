@@ -1,192 +1,43 @@
-
 [
   {
-    "event_id": "event_oil_supply",
-    "headline": "Illustrative crude oil supply disruption",
-    "event_type": "COMMODITY_SUPPLY",
-    "summary": "A hypothetical reduction in crude oil supply may raise oil prices and increase costs for oil-importing economies.",
+    "event_id": "EVT-IRAN-OIL-001",
+    "headline": "Iran oil facilities attacked - global supply at risk",
+    "event_type": "GEOPOLITICAL",
+    "summary": "Reports of strikes on Iranian oil facilities raise concerns about potential supply disruptions in the Middle East, pushing crude oil prices up sharply.",
     "source": null,
-    "keywords": ["crude oil", "oil supply", "oil prices", "opec", "supply disruption"],
     "nodes": [
-      {
-        "node_id": "oil_crude",
-        "label": "Crude Oil",
-        "node_type": "COMMODITY",
-        "description": "Global crude oil supply and pricing."
-      },
-      {
-        "node_id": "india",
-        "label": "India",
-        "node_type": "COUNTRY",
-        "description": "An economy exposed to imported energy costs."
-      },
-      {
-        "node_id": "transport_india",
-        "label": "Indian Transportation Sector",
-        "node_type": "SECTOR",
-        "description": "Transportation businesses exposed to fuel costs."
-      }
+      {"node_id": "iran", "label": "Iran", "node_type": "COUNTRY", "description": "Major oil-producing nation and OPEC member; direct exposure to the attack."},
+      {"node_id": "crude", "label": "Crude Oil", "node_type": "COMMODITY", "description": "Global benchmark energy commodity; price-sensitive to Middle East supply shocks."},
+      {"node_id": "energy", "label": "Energy Sector", "node_type": "SECTOR", "description": "Producers, refiners and integrated oil companies."},
+      {"node_id": "trans", "label": "Transportation", "node_type": "SECTOR", "description": "Airlines, shipping and logistics where fuel is a major operating cost."},
+      {"node_id": "manuf", "label": "Manufacturing", "node_type": "SECTOR", "description": "Industrial producers exposed to higher energy and input costs."},
+      {"node_id": "infl", "label": "Inflation Expectations", "node_type": "INDICATOR", "description": "Market-implied inflation outlook, sensitive to energy prices."},
+      {"node_id": "rates", "label": "Interest Rate Expectations", "node_type": "INDICATOR", "description": "Expected policy-rate path, influenced by inflation outlook."},
+      {"node_id": "bank", "label": "Banking Sector", "node_type": "SECTOR", "description": "Banks and financial institutions sensitive to the rate path."},
+      {"node_id": "real", "label": "Real Estate", "node_type": "SECTOR", "description": "Property sector sensitive to financing costs."},
+      {"node_id": "usa", "label": "USA", "node_type": "COUNTRY", "description": "Mixed exposure: domestic producers gain, consumers and fuel-heavy sectors face higher costs."},
+      {"node_id": "india", "label": "India", "node_type": "COUNTRY", "description": "Very high crude-import dependence; current-account and inflation pressure."},
+      {"node_id": "china", "label": "China", "node_type": "COUNTRY", "description": "Large crude importer; diversified suppliers and reserves lower short-term exposure."},
+      {"node_id": "eu", "label": "EU", "node_type": "COUNTRY", "description": "Energy-import dependent; inflation and ECB policy path affected."}
     ],
     "edges": [
-      {
-        "edge_id": "oil_transport_cost",
-        "source_node_id": "oil_crude",
-        "target_node_id": "transport_india",
-        "relationship": "MAY_INCREASE_FUEL_COSTS",
-        "strength": 0.65,
-        "direction": "NEGATIVE",
-        "explanation": "Higher crude oil prices can raise fuel costs for transportation businesses, all else equal.",
-        "evidence_type": "HYPOTHESIS",
-        "evidence": [],
-        "limitations": [
-          "Illustrative relationship; no event-specific evidence is attached.",
-          "The impact depends on fuel prices, taxes, contracts, and pass-through."
-        ]
-      },
-      {
-        "edge_id": "oil_india_import",
-        "source_node_id": "oil_crude",
-        "target_node_id": "india",
-        "relationship": "MAY_INCREASE_IMPORT_COSTS",
-        "strength": 0.65,
-        "direction": "NEGATIVE",
-        "explanation": "Higher crude oil prices may increase the import bill of an oil-importing economy.",
-        "evidence_type": "HYPOTHESIS",
-        "evidence": [],
-        "limitations": [
-          "Illustrative relationship; not a measurement of a specific event.",
-          "The overall effect depends on exchange rates, demand, and other economic conditions."
-        ]
-      }
+      {"edge_id": "e1", "source_node_id": "iran", "target_node_id": "crude", "relationship": "SUPPLY_DISRUPTION_RISK", "strength": 0.82, "direction": "NEGATIVE", "explanation": "Attacks on oil facilities may reduce exportable supply, tightening global crude balances.", "evidence_type": "HYPOTHESIS", "evidence": [], "limitations": ["Actual supply loss depends on damage severity, which is not confirmed."]},
+      {"edge_id": "e2", "source_node_id": "crude", "target_node_id": "energy", "relationship": "AFFECTS_SECTOR", "strength": 0.85, "direction": "MIXED", "explanation": "Higher crude prices help upstream producers but raise input costs for refiners and downstream energy users.", "evidence_type": "ESTABLISHED_RELATIONSHIP", "evidence": [], "limitations": ["Direction differs by sub-sector."]},
+      {"edge_id": "e3", "source_node_id": "energy", "target_node_id": "trans", "relationship": "INCREASES_COSTS", "strength": 0.68, "direction": "NEGATIVE", "explanation": "Fuel is a large operating cost for airlines, shipping and logistics; higher fuel prices compress margins.", "evidence_type": "ESTABLISHED_RELATIONSHIP", "evidence": [], "limitations": ["Hedging and fuel surcharges can delay the cost pass-through."]},
+      {"edge_id": "e4", "source_node_id": "energy", "target_node_id": "manuf", "relationship": "INCREASES_COSTS", "strength": 0.60, "direction": "NEGATIVE", "explanation": "Energy-intensive manufacturers face higher input costs when energy prices rise.", "evidence_type": "ESTABLISHED_RELATIONSHIP", "evidence": [], "limitations": ["Energy intensity varies widely across sub-sectors."]},
+      {"edge_id": "e5", "source_node_id": "crude", "target_node_id": "infl", "relationship": "MAY_RAISE", "strength": 0.72, "direction": "POSITIVE", "explanation": "Higher energy prices feed into headline inflation and inflation expectations.", "evidence_type": "ESTABLISHED_RELATIONSHIP", "evidence": [], "limitations": ["Pass-through depends on how long prices stay elevated."]},
+      {"edge_id": "e6", "source_node_id": "infl", "target_node_id": "rates", "relationship": "MAY_RAISE", "strength": 0.55, "direction": "POSITIVE", "explanation": "Rising inflation expectations can push market-implied policy rates higher.", "evidence_type": "HYPOTHESIS", "evidence": [], "limitations": ["Central banks may look through temporary energy shocks."]},
+      {"edge_id": "e7", "source_node_id": "rates", "target_node_id": "bank", "relationship": "IMPACTS_SECTOR", "strength": 0.58, "direction": "MIXED", "explanation": "Higher rates can help net-interest margins but hurt credit demand and asset quality.", "evidence_type": "HYPOTHESIS", "evidence": [], "limitations": ["Net effect depends on balance-sheet composition."]},
+      {"edge_id": "e8", "source_node_id": "rates", "target_node_id": "real", "relationship": "IMPACTS_SECTOR", "strength": 0.50, "direction": "NEGATIVE", "explanation": "Higher financing costs weigh on property demand and valuations.", "evidence_type": "HYPOTHESIS", "evidence": [], "limitations": ["Effects typically lag by several quarters."]},
+      {"edge_id": "e9", "source_node_id": "crude", "target_node_id": "usa", "relationship": "MIXED_EXPOSURE", "strength": 0.62, "direction": "MIXED", "explanation": "US producers benefit from higher prices; consumers and fuel-heavy sectors face higher costs.", "evidence_type": "ESTABLISHED_RELATIONSHIP", "evidence": [], "limitations": ["Net effect depends on the balance of production and consumption."]},
+      {"edge_id": "e10", "source_node_id": "crude", "target_node_id": "india", "relationship": "MAY_INCREASE_IMPORT_COSTS", "strength": 0.70, "direction": "NEGATIVE", "explanation": "India is heavily import-dependent on crude; higher prices widen the trade deficit and pressure the currency.", "evidence_type": "ESTABLISHED_RELATIONSHIP", "evidence": [], "limitations": ["Pass-through depends on domestic fuel pricing policy."]},
+      {"edge_id": "e11", "source_node_id": "crude", "target_node_id": "china", "relationship": "MAY_INCREASE_IMPORT_COSTS", "strength": 0.58, "direction": "NEGATIVE", "explanation": "China imports large volumes of crude but has diversified suppliers and strategic reserves.", "evidence_type": "ESTABLISHED_RELATIONSHIP", "evidence": [], "limitations": ["Buffers reduce short-term sensitivity."]},
+      {"edge_id": "e12", "source_node_id": "crude", "target_node_id": "eu", "relationship": "MAY_INCREASE_IMPORT_COSTS", "strength": 0.60, "direction": "NEGATIVE", "explanation": "The EU is energy-import dependent; higher prices feed inflation and complicate ECB policy.", "evidence_type": "ESTABLISHED_RELATIONSHIP", "evidence": [], "limitations": ["Gas and oil effects are different channels and are not separated here."]}
     ],
     "limitations": [
-      "Hypothetical scenario, not verified live news.",
-      "Relationship strengths are provisional demonstration values, not calibrated estimates."
-    ]
-  },
-  {
-    "event_id": "event_rbi_rate",
-    "headline": "Illustrative RBI interest-rate increase",
-    "event_type": "CENTRAL_BANK_RATE",
-    "summary": "A hypothetical RBI policy-rate increase may raise borrowing costs and affect credit demand.",
-    "source": null,
-    "keywords": ["rbi", "reserve bank of india", "repo rate", "indian interest rates", "rate hike"],
-    "nodes": [
-      {
-        "node_id": "rbi_rate",
-        "label": "RBI Policy Rate",
-        "node_type": "INDICATOR",
-        "description": "The Reserve Bank of India's policy interest rate."
-      },
-      {
-        "node_id": "india_credit",
-        "label": "Indian Credit Demand",
-        "node_type": "INDICATOR",
-        "description": "Demand for borrowing by households and businesses."
-      },
-      {
-        "node_id": "india_banks",
-        "label": "Indian Banking Sector",
-        "node_type": "SECTOR",
-        "description": "Banks exposed to changes in lending rates and credit demand."
-      }
-    ],
-    "edges": [
-      {
-        "edge_id": "rbi_credit_demand",
-        "source_node_id": "rbi_rate",
-        "target_node_id": "india_credit",
-        "relationship": "MAY_REDUCE_CREDIT_DEMAND",
-        "strength": 0.60,
-        "direction": "NEGATIVE",
-        "explanation": "Higher policy rates can increase borrowing costs and reduce demand for credit, all else equal.",
-        "evidence_type": "HYPOTHESIS",
-        "evidence": [],
-        "limitations": [
-          "Illustrative relationship; no specific policy announcement is being analyzed.",
-          "Transmission depends on bank lending rates, expectations, and economic conditions."
-        ]
-      },
-      {
-        "edge_id": "rbi_bank_effect",
-        "source_node_id": "rbi_rate",
-        "target_node_id": "india_banks",
-        "relationship": "MAY_CHANGE_BANK_MARGINS",
-        "strength": 0.45,
-        "direction": "MIXED",
-        "explanation": "Rate changes can affect bank funding costs, lending yields, and credit quality in different ways.",
-        "evidence_type": "HYPOTHESIS",
-        "evidence": [],
-        "limitations": [
-          "The net effect varies by bank and by the speed at which deposit and lending rates adjust."
-        ]
-      }
-    ],
-    "limitations": [
-      "Hypothetical scenario, not a report of an actual RBI decision.",
-      "Relationship strengths are provisional demonstration values."
-    ]
-  },
-  {
-    "event_id": "event_fed_rate",
-    "headline": "Illustrative US Federal Reserve interest-rate increase",
-    "event_type": "CENTRAL_BANK_RATE",
-    "summary": "A hypothetical Federal Reserve rate increase may affect US financial conditions and global capital flows.",
-    "source": null,
-    "keywords": ["federal reserve", "fed rate", "fed funds rate", "us interest rates", "fed rate hike"],
-    "nodes": [
-      {
-        "node_id": "fed_rate",
-        "label": "US Federal Reserve Policy Rate",
-        "node_type": "INDICATOR",
-        "description": "The US central bank's policy interest rate."
-      },
-      {
-        "node_id": "us_dollar",
-        "label": "US Dollar",
-        "node_type": "ASSET",
-        "description": "The US currency, affected by many economic and market factors."
-      },
-      {
-        "node_id": "emerging_markets",
-        "label": "Emerging Markets",
-        "node_type": "ASSET",
-        "description": "Financial markets exposed to global interest rates and capital flows."
-      }
-    ],
-    "edges": [
-      {
-        "edge_id": "fed_dollar",
-        "source_node_id": "fed_rate",
-        "target_node_id": "us_dollar",
-        "relationship": "MAY_SUPPORT_DOLLAR",
-        "strength": 0.50,
-        "direction": "POSITIVE",
-        "explanation": "Higher US rates may support the dollar if they improve relative returns, all else equal.",
-        "evidence_type": "HYPOTHESIS",
-        "evidence": [],
-        "limitations": [
-          "Currency movements also depend on expectations, other central banks, and risk sentiment."
-        ]
-      },
-      {
-        "edge_id": "fed_emerging_markets",
-        "source_node_id": "fed_rate",
-        "target_node_id": "emerging_markets",
-        "relationship": "MAY_PRESSURE_CAPITAL_FLOWS",
-        "strength": 0.55,
-        "direction": "NEGATIVE",
-        "explanation": "Higher US yields may make some dollar assets more attractive and pressure some emerging-market assets.",
-        "evidence_type": "HYPOTHESIS",
-        "evidence": [],
-        "limitations": [
-          "Effects vary across countries, assets, and market conditions."
-        ]
-      }
-    ],
-    "limitations": [
-      "Hypothetical scenario, not a report of an actual Fed decision.",
-      "Relationship strengths are provisional demonstration values."
+      "Illustrative scenario, not a verified live-news analysis.",
+      "Strength values are demonstration scores, not calibrated probabilities.",
+      "Actual market impact depends on scale, duration, and policy responses."
     ]
   }
 ]

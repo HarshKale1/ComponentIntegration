@@ -1,0 +1,1767 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Event Market Impact Graph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#04101F; --panel:#07192B; --panel2:#0A2138; --line:#173B5D; --line2:#0F2C47;
+  --accent:#2684FF; --fg:#E8F0FA; --muted:#8FA6C0; --dim:#5D7794;
+  --sev:#FF4040; --high:#FF8A1F; --mod:#F2B722; --mild:#2FBF71; --low:#3D8BFF;
+  --font:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:13px/1.4 var(--font);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+a{color:var(--accent)}
+.mono,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* top navigation bar */
+.topnav{display:flex;align-items:center;gap:4px;padding:8px 16px;background:var(--panel);border-bottom:1px solid var(--line);overflow-x:auto;flex-shrink:0;position:sticky;top:env(safe-area-inset-top,0px);z-index:44}.topnav::-webkit-scrollbar{height:6px}
+.topnav button{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:6px;font-size:13px;color:var(--muted);white-space:nowrap;transition:background .15s,color .15s;border:1px solid transparent}
+.topnav button svg{flex:none;color:var(--muted)}
+.topnav button:hover{background:var(--panel2);color:var(--fg)}
+.topnav button[aria-current="page"]{background:#0D3560;border-color:#1A5BA8;color:var(--fg);font-weight:600}
+.topnav button[aria-current="page"] svg{color:var(--fg)}
+
+/* top bar */
+.top{position:relative;height:58px;display:flex;align-items:center;gap:18px;padding:0 16px;background:var(--bg);border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:10px;width:160px;flex:none}
+.brand svg{flex:none}
+.brand b{display:block;font-size:17px;font-weight:600;letter-spacing:.2px;line-height:1.1}
+.brand small{display:block;font-size:9.5px;color:var(--muted);line-height:1.2}
+.search{position:relative;flex:1;max-width:530px;min-width:0}
+.search input{width:100%;height:36px;border-radius:6px;border:1px solid var(--line);background:var(--panel);color:var(--fg);padding:0 12px 0 36px;font:inherit}
+.search input::placeholder{color:var(--dim)}
+.search svg{position:absolute;left:11px;top:10px;color:var(--muted)}
+.results{position:absolute;top:42px;left:0;right:0;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px;display:none;z-index:50;max-height:320px;overflow:auto}
+.results.on{display:block}
+.results button{display:flex;justify-content:space-between;gap:10px;width:100%;text-align:left;padding:8px 10px;border-radius:4px}
+.results button:hover,.results button:focus-visible{background:var(--line2)}
+.results em{font-style:normal;color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.tright{margin-left:auto;display:flex;align-items:center;gap:14px;min-width:0}
+.fresh{display:flex;flex-direction:column;align-items:flex-end;line-height:1.2;font-size:12px;white-space:nowrap}
+.fresh small{color:var(--muted);font-size:10.5px}
+.fresh .ill{color:var(--mod)}
+.iconbtn{position:relative;width:34px;height:34px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.iconbtn:hover{background:var(--panel2);color:var(--fg)}
+.badge{position:absolute;top:5px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--sev);border:2px solid var(--bg)}
+.user{display:flex;align-items:center;gap:8px;padding:3px 6px;border-radius:6px}
+.user:hover{background:var(--panel2)}
+.avatar{width:30px;height:30px;border-radius:50%;background:#1550A8;display:grid;place-items:center;font-weight:600;font-size:12px}
+.menu{position:absolute;right:0;top:46px;min-width:220px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px;display:none;z-index:60;box-shadow:0 12px 30px #0008}
+.menu.on{display:block}
+.menu .mi{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:4px}
+.menu .mi:hover{background:var(--line2)}
+.menu .mi small{display:block;color:var(--muted);font-size:11px}
+.menuwrap{position:relative}
+
+/* 3-column shell */
+.shell{display:grid;grid-template-columns:260px minmax(0,1fr) 316px;gap:12px;padding:12px 16px 28px;align-items:stretch}
+.shell.norail{grid-template-columns:260px minmax(0,1fr)}
+.shell.noleft{grid-template-columns:minmax(0,1fr) 316px}
+.shell.noleft.norail{grid-template-columns:minmax(0,1fr)}
+.sidebar-left{display:flex;flex-direction:column;gap:10px;min-width:0;align-self:stretch}
+.sidebar-left > .panel{flex:1 1 auto;display:flex;flex-direction:column}
+.sidebar-left > .panel > .tscroll{flex:1 1 auto}
+
+/* generic panel */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;min-width:0}
+.ph{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px 6px}
+.ph h3{margin:0;font-size:14px;font-weight:600}
+.link{font-size:11.5px;color:var(--accent)}
+.link:hover{text-decoration:underline}
+.seg{display:inline-flex;border:1px solid #1A5BA8;border-radius:5px;overflow:hidden}
+.seg button{padding:5px 12px;font-size:12px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+
+/* severity pills */
+.pill{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 9px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;background:currentColor}
+.l-sev{color:#FF7070;background:#4A1218;border-color:#B02A33}.l-sev::before{border-radius:50%}
+.l-high{color:#FFA55A;background:#47260A;border-color:#B8620F}.l-high::before{border-radius:1px;transform:rotate(45deg)}
+.l-mod{color:#F6CB55;background:#463708;border-color:#A57C0E}.l-mod::before{clip-path:polygon(50% 0,100% 100%,0 100%)}
+.l-mild{color:#5FD99A;background:#0C3A27;border-color:#1E8A58}.l-mild::before{border-radius:50%}
+.l-low{color:#7FB2FF;background:#0F2D57;border-color:#2A62B5}.l-low::before{border-radius:1px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+
+/* event header */
+.event{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(0,.9fr);gap:16px;align-items:center;padding:14px 16px}
+.evicon{width:54px;height:54px;border-radius:10px;background:linear-gradient(160deg,#FF4A3B,#C21B2A);display:grid;place-items:center}
+.cat{display:inline-block;padding:1px 8px;border-radius:3px;background:#5A1620;border:1px solid #9B2434;color:#FF8E98;font-size:11px;margin-bottom:5px}
+.event h1{margin:0;font-size:19px;line-height:1.2;font-weight:600;text-wrap:balance}
+.meta{color:var(--muted);font-size:11.5px;margin:4px 0}
+.meta a{text-decoration:none}
+.event p{margin:0;color:#C3D2E4;font-size:12.5px;max-width:64ch}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;border:1px solid var(--line);border-radius:6px;padding:12px;background:var(--panel2)}
+.fact small{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:11px;margin-bottom:5px}
+.fact b{font-weight:500;font-size:12.5px;display:block}
+.fact .big{color:var(--sev);font-weight:600}
+
+/* tabs */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:thin}
+.tabs button{flex:none;padding:8px 20px;border-radius:5px;background:var(--panel);border:1px solid var(--line);color:var(--fg)}
+.tabs button:hover{border-color:#2B63A0}
+.tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+
+/* stage */
+.stagewrap{margin-top:8px}
+.stage{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:8px;min-height:460px;align-items:stretch}
+.stage > .panel{display:flex;flex-direction:column}
+.subtoggle{display:none;margin-bottom:8px}
+.graphp{position:relative;padding:8px 10px 10px}
+.legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;font-size:11.5px;color:var(--muted);padding:2px 4px 6px}
+.legend .sp{margin-left:auto}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:11.5px}
+.chip[aria-pressed="true"]{color:var(--fg);border-color:#2B63A0;background:var(--panel2)}
+.filters{display:none;flex-wrap:wrap;align-items:center;gap:6px;padding:4px 4px 8px}
+.filters.on{display:flex}
+.filters select{background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font:inherit;font-size:12px}
+svg.vp{display:block;width:100%;min-height:420px;height:auto;touch-action:none;user-select:none;-webkit-user-select:none}
+.zoomctl{position:absolute;right:16px;bottom:16px;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:5px;background:var(--panel2);overflow:hidden}
+.zoomctl button{width:30px;height:30px;display:grid;place-items:center;color:var(--fg)}
+.zoomctl button:hover{background:var(--line2)}
+.zoomctl button+button{border-top:1px solid var(--line)}
+.gedge{cursor:pointer}
+.gnode{cursor:pointer}
+.gnode:focus-visible rect,.gnode:focus-visible circle.ring{stroke:var(--accent);stroke-width:2}
+.dim{opacity:.18}
+.mapp{position:relative;padding:8px 10px 10px;display:flex;flex-direction:column}
+.mapp h3{margin:2px 4px 6px;font-size:15px}
+.mapbox{position:relative;flex:1;min-height:440px;border-radius:5px;background:radial-gradient(120% 90% at 50% 40%,#0A2342,#06152A);overflow:hidden}
+.mapbox svg.vp{height:100%;min-height:440px}
+.land{fill:#123252;stroke:#1D4A73;stroke-width:.35}
+.cshape{cursor:pointer;stroke:#04101F;stroke-width:.4;opacity:.92}
+.cshape:hover,.cshape:focus-visible{opacity:1;stroke:#fff;stroke-width:.7;outline:none}
+.mlegend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:11.5px;padding:8px 4px 0;color:var(--muted)}
+.tip{position:fixed;z-index:70;pointer-events:none;background:#020A14;border:1px solid var(--line);border-radius:5px;padding:6px 9px;font-size:12px;display:none;max-width:240px}
+
+/* bottom row */
+.trio{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:8px;margin-top:8px}
+.paths{display:flex;flex-direction:column;gap:6px;padding:4px 10px 10px}
+.pathrow{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:var(--panel2);text-align:left;width:100%}
+.pathrow:hover{border-color:#2B63A0}
+.pathrow[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.rk{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;color:#07192B;font-weight:700;font-size:11px}
+.pathrow b{font-weight:500;font-size:12.5px;display:block}
+.pathrow small{color:var(--muted);font-size:11px}
+.chartp{padding-bottom:10px}
+.chartp .sub{padding:0 12px;color:var(--fg);font-size:12px}
+.chartwrap{position:relative;padding:4px 10px 0}
+.evlabel{position:absolute;right:18px;top:6px;border:1px solid var(--sev);border-radius:4px;background:#2A0E16;padding:3px 8px;font-size:11px;line-height:1.25;text-align:center}
+.evlabel b{color:#FF7070}
+.winsel{display:flex;gap:4px;padding:6px 12px 0;align-items:center}
+.winsel button{padding:2px 9px;border:1px solid var(--line);border-radius:4px;font-size:11px;color:var(--muted)}
+.winsel button[aria-pressed="true"]{background:#0D3560;color:var(--fg);border-color:#1A5BA8}
+.winsel span{margin-left:auto;font-size:11px;color:var(--dim)}
+.note{margin:8px 12px 0;padding:8px 10px;border:1px solid #1A4A80;background:#0A2548;border-radius:5px;font-size:11.5px;color:#BCD3EE;display:flex;gap:8px}
+.note svg{flex:none;color:var(--accent);margin-top:1px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{font-weight:400;color:var(--muted);text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+.tbl td{padding:8px 10px;border-bottom:1px solid var(--line2);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.tbl tbody tr.clk{cursor:pointer}
+.tbl tbody tr.clk:hover td{background:var(--panel2)}
+.tscroll{overflow-x:auto;padding:0 2px 6px}
+.arr{display:inline-flex;font-weight:700;font-size:15px;line-height:1}
+.arr.u{color:var(--sev)}.arr.d{color:var(--mild)}.arr.f{color:var(--high)}
+
+/* right rail */
+.rail{display:flex;flex-direction:column;gap:10px;min-width:0}
+.overall{display:flex;gap:14px;align-items:center;padding:12px 14px}
+.overall .ic{width:44px;height:44px;border-radius:50%;background:#10305A;display:grid;place-items:center;flex:none}
+.overall small{color:var(--muted)}
+.overall h2{margin:0;font-size:22px;color:var(--sev);line-height:1.15}
+.bar{height:6px;border-radius:3px;background:#12304E;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:3px}
+.overall .bar{width:140px;margin-top:5px}
+.overall .conf{margin-left:auto;font-size:11px;color:var(--muted);align-self:flex-end;white-space:nowrap}
+.crow{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:10px;padding:9px 12px;border-top:1px solid var(--line2);align-items:flex-start}
+.flag{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;font-weight:700;font-family:var(--mono);background:#12304E;border:1px solid var(--line)}
+.crow b{font-weight:600;margin-right:8px}
+.crow .gdp{font-family:var(--mono);font-size:12px;display:inline-block;margin-left:8px}
+.crow .gdp small{display:block;font-size:8.5px;color:var(--dim);text-align:right;font-family:var(--font)}
+.crow p{margin:3px 0 0;color:#B5C7DC;font-size:11.5px}
+.crow .dl{font-size:11px}
+.top5{padding:2px 12px 12px}
+.t5{display:grid;grid-template-columns:20px 54px minmax(0,1fr) 30px 66px;gap:8px;align-items:center;padding:6px 0;font-size:12px}
+.t5 .n{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;color:#07192B}
+.t5 .bar{height:9px;border-radius:2px}
+.t5 .bar i{border-radius:2px}
+.explain{padding:2px 12px 12px}
+.why{border:1px solid var(--line);border-radius:6px;background:var(--panel2);padding:10px;display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;font-size:11.5px;color:#C3D2E4}
+.why b{display:block;color:var(--fg);font-size:12px;margin-bottom:3px}
+.reltype{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 0 0;font-size:11.5px;color:var(--muted)}
+.reltype div{display:flex;align-items:center}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;font-size:11.5px;color:var(--muted)}
+.kv b{display:block;color:var(--fg);font-weight:500;margin-top:2px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #1A5BA8;border-radius:5px;color:var(--fg);background:#0D3560;font-size:12px}
+.btn:hover{background:#114174}
+.btn.ghost{background:transparent;border-color:var(--line)}
+
+/* drawer */
+.drawer{position:fixed;top:calc(58px + 52px + env(safe-area-inset-top,0px));right:0;bottom:0;width:min(420px,100%);z-index:45;background:var(--panel);border-left:1px solid var(--line);transform:translateX(102%);transition:transform .22s ease;display:flex;flex-direction:column;box-shadow:-16px 0 40px #0008}
+.drawer.on{transform:none}
+.dhead{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.dhead small{color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-size:10.5px}
+.dhead h2{margin:2px 0 0;font-size:17px;line-height:1.25;text-wrap:balance}
+.dbody{padding:14px 16px 24px;overflow:auto;display:flex;flex-direction:column;gap:14px;flex:1}
+.dbody h4{margin:0 0 6px;font-size:11.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+.dbody p{margin:0;color:#C3D2E4;font-size:12.5px}
+.comp{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.comp div{border:1px solid var(--line);border-radius:6px;padding:8px;background:var(--panel2)}
+.comp small{display:block;color:var(--muted);font-size:10.5px;line-height:1.25;min-height:26px}
+.comp b{font-family:var(--mono);font-size:17px;font-weight:500}
+.src{border:1px solid var(--line);border-radius:6px;padding:10px;background:var(--panel2)}
+.src b{font-weight:600}
+.src small{display:block;color:var(--muted);margin:2px 0 6px}
+.src q{display:block;font-size:12px;color:#C3D2E4;quotes:none;border-left:2px solid var(--line);padding-left:8px}
+.conn{display:flex;flex-direction:column;gap:4px}
+.conn button{display:flex;justify-content:space-between;gap:8px;padding:7px 10px;border:1px solid var(--line);border-radius:5px;text-align:left;font-size:12px;background:var(--panel2)}
+.conn button:hover{border-color:#2B63A0}
+.warn{border:1px solid #6E5410;background:#2B2209;color:#F2D182;border-radius:6px;padding:9px 10px;font-size:12px}
+.steps{display:flex;flex-direction:column;gap:6px}
+.step{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;font-size:12px;padding:6px 8px;border:1px solid var(--line);border-radius:5px;background:var(--panel2)}
+
+/* alt views */
+.view{padding:14px 16px 16px}
+.view h2{margin:0 0 4px;font-size:18px}
+.view .ep{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-bottom:12px}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:80;background:#0D3560;border:1px solid #1A5BA8;padding:9px 16px;border-radius:6px;font-size:12.5px;display:none;max-width:90vw}
+.toast.on{display:block}
+.banner{margin-top:8px;font-size:11px;color:var(--dim)}
+
+/* news cards */
+.article-btn{display:block;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:inherit;cursor:pointer;transition:border-color .15s,background .15s}
+.article-btn:hover{border-color:#2B63A0;background:#0D3560}
+.article-btn b{display:block;font-weight:500;font-size:13.5px;color:var(--fg);line-height:1.35;margin-bottom:6px}
+.article-btn small{color:var(--muted);font-size:11.5px;display:block}
+
+.stock-search{display:inline-flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font-size:12px}
+.stock-search input{background:transparent;border:0;color:var(--fg);font:inherit;outline:none;min-width:200px}
+.stock-search input::placeholder{color:var(--dim)}
+.stock-search svg{color:var(--muted);flex:none}
+.stock-search button{padding:3px 10px;border-radius:4px;background:var(--accent);color:#fff;font-size:11px;font-weight:600}
+.stock-search button:hover{background:#1a6fe0}
+.stock-search-title{margin:12px 0 6px;font-size:13px;color:var(--muted);font-weight:500}.stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.stock-card{display:block;width:100%;text-align:left;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);color:inherit;cursor:pointer;transition:border-color .15s,background .15s}
+.stock-card:hover{border-color:#2B63A0;background:#0D3560}
+.stock-card.stock-err{border-color:#7A2A2A;background:#2A0E16}
+.stock-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.stock-head b{font-weight:600;font-size:13.5px;color:var(--fg)}
+.stock-region{font-size:10px;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:1px 6px;font-family:var(--mono)}
+.stock-card small{display:block;color:var(--muted);font-size:11px;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stock-price{font-family:var(--mono);font-size:16px;font-weight:600;color:var(--fg);margin:4px 0 2px}
+.stock-change{font-size:12px;font-weight:600}
+.stock-change.up{color:#2FBF71}
+.stock-change.dn{color:#FF4040}
+.stock-spark{margin-top:8px;height:40px;overflow:hidden}
+.stock-spark svg{display:block;width:100%;height:100%}/* ============ AI assistant chat widget ============ */
+#ai-chat-btn{position:fixed;right:24px;bottom:24px;width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#2684FF,#1A5BA8);color:#fff;display:grid;place-items:center;box-shadow:0 8px 24px rgba(38,132,255,.45);z-index:9000;cursor:pointer;transition:transform .15s,box-shadow .15s}
+#ai-chat-btn:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(38,132,255,.6)}
+#ai-chat-panel{position:fixed;right:24px;bottom:92px;width:min(420px,calc(100vw - 32px));max-height:min(620px,calc(100vh - 140px));background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 20px 50px #0009;z-index:9001;display:none;flex-direction:column;overflow:hidden}
+#ai-chat-panel.on{display:flex}
+.ai-chat-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);background:var(--panel2)}
+.ai-chat-head .ai-dot{width:10px;height:10px;border-radius:50%;background:#2FBF71;box-shadow:0 0 8px #2FBF7180}
+.ai-chat-head b{font-size:13.5px;font-weight:600}
+.ai-chat-head small{color:var(--muted);font-size:11px;display:block}
+.ai-chat-head .ai-x{margin-left:auto;color:var(--muted);width:28px;height:28px;border-radius:6px;display:grid;place-items:center}
+.ai-chat-head .ai-x:hover{background:var(--line2);color:var(--fg)}
+.ai-chat-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:120px}
+.ai-msg{padding:9px 12px;border-radius:8px;font-size:12.5px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
+.ai-msg.user{background:#0D3560;border:1px solid #1A5BA8;align-self:flex-end;max-width:85%}
+.ai-msg.bot{background:var(--panel2);border:1px solid var(--line);align-self:flex-start;max-width:95%;color:#C3D2E4}
+.ai-msg.bot b{color:#fff;display:block;margin-bottom:4px}
+.ai-msg.bot ul{margin:4px 0 0 0;padding-left:18px}
+.ai-msg.bot li{list-style:disc}
+.ai-msg.system{align-self:center;background:transparent;color:var(--muted);font-size:11px;padding:4px}
+.ai-chat-foot{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line);background:var(--panel2)}
+.ai-chat-foot input{flex:1;height:36px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:0 10px;color:var(--fg);font:inherit;font-size:12.5px;outline:none}
+.ai-chat-foot input:focus{border-color:var(--accent)}
+.ai-chat-foot button{padding:0 14px;height:36px;border-radius:6px;background:var(--accent);color:#fff;font-weight:600;font-size:12.5px}
+.ai-chat-foot button:hover{background:#1a6fe0}
+.ai-chat-foot button:disabled{opacity:.5;cursor:not-allowed}
+.ai-suggest{display:flex;flex-wrap:wrap;gap:5px;padding:0 10px 10px}
+.ai-suggest button{font-size:11px;padding:4px 9px;border:1px solid var(--line);border-radius:12px;color:var(--muted);background:var(--panel2)}
+.ai-suggest button:hover{border-color:#2B63A0;color:var(--fg)}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* sector-left helper */
+.sect-left .tscroll{padding:0 6px 10px}
+
+/* responsive */
+@media (max-width:1240px){
+  .shell{grid-template-columns:220px minmax(0,1fr)}
+  .shell.norail{grid-template-columns:220px minmax(0,1fr)}
+  .shell.noleft{grid-template-columns:minmax(0,1fr)}
+  .shell.noleft.norail{grid-template-columns:minmax(0,1fr)}
+  .rail{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));align-items:start}
+  .trio{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:900px){
+  .shell,.shell.norail,.shell.noleft,.shell.noleft.norail{grid-template-columns:minmax(0,1fr)}
+  .sidebar-left{order:2}
+  .stage{grid-template-columns:minmax(0,1fr)}
+  .subtoggle{display:inline-flex}
+  .stage[data-sub="graph"] .mapp{display:none}
+  .stage[data-sub="map"] .graphp{display:none}
+  .event{grid-template-columns:auto minmax(0,1fr)}
+  .event .facts{grid-column:1/-1}
+  .trio{grid-template-columns:minmax(0,1fr)}
+  .fresh,.brand small{display:none}
+  .brand{width:auto}
+  .tright{gap:6px}
+  .topnav{padding:6px 10px}
+  .topnav button{padding:6px 10px;font-size:12px}
+}
+@media (max-width:520px){
+  .top{gap:8px;padding:0 10px}
+  .user span.nm{display:none}
+  .evicon{width:40px;height:40px}
+  .event h1{font-size:16.5px}
+  .facts{grid-template-columns:1fr}
+  .t5{grid-template-columns:20px 46px minmax(0,1fr) 30px}
+  .t5 .pill{display:none}
+  .overall .conf{display:none}
+}
+@media (prefers-reduced-motion:reduce){.drawer{transition:none}}
+</style>
+
+<header class="top">
+  <a class="brand" href="index.html" style="text-decoration:none;color:inherit">
+    <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><path d="M4 25 13 15l6 6 11-13" stroke="#2684FF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 8h7v7" stroke="#2684FF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div><b>FinFlow AI</b><small>From News to Market Impact</small></div>
+  </a>
+  <div class="search" id="searchbox" role="search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" autocomplete="off" placeholder="Search events, companies, sectors, assets..." aria-label="Search events, companies, sectors and assets" maxlength="80">
+    <div class="results" id="results" role="listbox"></div>
+  </div>
+  <div class="tright">
+    <div class="fresh"><span id="clock" class="num"></span><small>Data: <span class="ill" id="datalabel">loading…</span></small></div>
+    <div class="menuwrap">
+      <button class="iconbtn" id="bell" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>
+        <span class="badge"></span>
+      </button>
+      <div class="menu" id="bellmenu">
+        <div class="mi"><b>Analysis completed</b><small>Iran oil facilities event · 2 min ago</small></div>
+        <div class="mi"><b>Brent moved +8.0%</b><small>Watchlist alert · Brent Crude</small></div>
+        <div class="mi"><b>New related event</b><small>Shipping delays near the Gulf · queued</small></div>
+      </div>
+    </div>
+    <div class="menuwrap">
+      <button class="user" id="userbtn" aria-haspopup="true" aria-expanded="false"><span class="avatar">HK</span><span class="nm">Harsh Kale</span>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="menu" id="usermenu">
+        <button class="mi" data-go="settings">Settings<small>Preferences and data sources</small></button>
+        <button class="mi" data-go="reports">My reports</button>
+        <button class="mi" data-go="watchlist">Watchlist</button>
+      </div>
+    </div>
+  </div>
+</header>
+<nav class="topnav" id="nav" aria-label="Primary"></nav>
+
+<div class="shell">
+  <aside class="sidebar-left sect-left" aria-label="Impact by Sector">
+    <section class="panel" id="sectp"></section>
+  </aside>
+  <main id="main" style="min-width:0"></main>
+  <aside class="rail" id="rail" aria-label="Impact analysis">
+    <div class="panel" id="mkt-panel" aria-label="Market overview">
+      <div class="ph"><h3>Market Overview</h3></div>
+      <div id="mkt" style="padding:0 12px 12px"></div>
+    </div>
+  </aside>
+</div>
+
+<div class="drawer" id="drawer" role="dialog" aria-modal="false" aria-labelledby="dtitle">
+  <div class="dhead"><div><small id="dkind"></small><h2 id="dtitle"></h2></div>
+    <button class="iconbtn" id="dclose" aria-label="Close details"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="dbody" id="dbody"></div>
+</div>
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+"use strict";
+/* ============ helpers ============ */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const COL={sev:'#FF4040',high:'#FF8A1F',mod:'#F2B722',mild:'#2FBF71',low:'#3D8BFF'};
+const LABEL={sev:'Severe',high:'High',mod:'Moderate',mild:'Mild',low:'Low'};
+const pill=(l,txt)=>`<span class="pill l-${l}">${esc(txt||LABEL[l])}</span>`;
+const strength=s=>s>=.7?'Strong':s>=.4?'Medium':'Weak';
+const strCol=s=>s>=.7?COL.sev:s>=.4?COL.high:COL.mild;
+const strLvl=s=>s>=.7?'sev':s>=.4?'high':'mild';
+const gmean=a=>Math.pow(a.reduce((p,x)=>p*x,1),1/a.length);
+const ICON={
+  flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.4-.5-2-1-3-1.1-2.1-.2-4 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.2.4-2.3 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
+  barrel:'<rect x="6" y="3" width="12" height="18" rx="2"/><path d="M6 8h12M6 16h12"/>',
+  drop:'<path d="M12 2.7s7 7.2 7 12.3a7 7 0 0 1-14 0C5 9.9 12 2.7 12 2.7z"/>',
+  bolt:'<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>',
+  plane:'<path d="M2 16 22 8l-8 14-2-6-4 3z"/>',
+  factory:'<path d="M2 20V9l6 4V9l6 4V5h4v15z"/>',
+  trend:'<path d="M22 7 13.5 15.5 8.5 10.5 2 17"/><path d="M16 7h6v6"/>',
+  pct:'<path d="M19 5 5 19"/><circle cx="7" cy="7" r="2.4"/><circle cx="17" cy="17" r="2.4"/>',
+  bank:'<path d="M3 21h18M5 18v-7M10 18v-7M14 18v-7M19 18v-7M12 3 3 8h18z"/>',
+  home:'<path d="M3 11 12 3l9 8v10H3z"/><path d="M9 21v-6h6v6"/>',
+  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18 14 14 0 0 1 0-18"/>',
+  bars:'<path d="M3 17h8l-1.5-5h-5zM13 17h8l-1.5-5h-5zM8 12h8l-1.5-5h-5z"/>'
+};
+const svgI=(n,sz=18,sw=2)=>`<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]||''}</svg>`;
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('on'),2600)}
+
+/* ============ backend connection ============ */
+const API_BASE = (() => {
+  if (window.location.protocol === "file:") return "http://127.0.0.1:8010";
+  const host = window.location.hostname || "localhost";
+  return "http://127.0.0.1:8010";
+})();
+
+let LIVE_EVENT = null;
+let LIVE_COUNTRIES = null;
+let LIVE_SECTORS = null;
+let LIVE_ASSETS = null;
+let LIVE_PATHS = null;
+let LIVE_NODES = null;
+let LIVE_EDGES = null;
+let LIVE_SOURCES = null;
+
+const NODE_TYPE_ICON = { COMMODITY: "barrel", INDICATOR: "trend", COUNTRY: "globe", SECTOR: "factory", COMPANY: "bank", ASSET: "bars" };
+const NODE_TYPE_COLOR = { COMMODITY: "#FF4040", INDICATOR: "#FF8A1F", COUNTRY: "#2BC4D9", SECTOR: "#2BC4D9", COMPANY: "#F2B722", ASSET: "#F2B722" };
+const NODE_TYPE_LABEL = { COMMODITY: "Commodity", INDICATOR: "Indicator", COUNTRY: "Country", SECTOR: "Sector", COMPANY: "Company", ASSET: "Asset" };
+const EVENT_TYPE_LABEL = { COMMODITY_SUPPLY: "Commodity Supply", CENTRAL_BANK_RATE: "Central Bank Rate", INFLATION: "Inflation", GEOPOLITICAL: "Geopolitical Event", OTHER: "Other" };
+
+function evidenceClass(t) {
+  if (t === "VERIFIED_SOURCE") return "observed";
+  if (t === "ESTABLISHED_RELATIONSHIP") return "established";
+  return "inference";
+}
+function computeNodePositions(nodes) {
+  const cols = Math.ceil(Math.sqrt(nodes.length));
+  const spacingX = 150, spacingY = 100, startX = 80, startY = 60;
+  return nodes.map((n, i) => ({ ...n, x: startX + (i % cols) * spacingX, y: startY + Math.floor(i / cols) * spacingY }));
+}
+function adaptEvent(be) {
+  const event = {
+    id: be.event_id, cat: EVENT_TYPE_LABEL[be.event_type] || be.event_type,
+    title: be.headline, when: "—", pub: be.source || "Unspecified", url: "",
+    desc: be.summary, type: EVENT_TYPE_LABEL[be.event_type] || be.event_type,
+    assets: "—", move: "—", status: "processed",
+  };
+  const positioned = computeNodePositions(be.nodes || []);
+  const nodes = positioned.map((n) => ({
+    id: n.node_id, label: n.label, short: n.label,
+    type: NODE_TYPE_LABEL[n.node_type] || n.node_type,
+    x: n.x, y: n.y, icon: NODE_TYPE_ICON[n.node_type] || "globe",
+    col: NODE_TYPE_COLOR[n.node_type] || "#2BC4D9",
+    desc: n.description || "", sub: "", big: 0,
+  }));
+  const sources = {};
+  const edges = (be.edges || []).map((e) => {
+    const srcIds = [];
+    (e.evidence || []).forEach((ev) => {
+      sources[ev.evidence_id] = { pub: ev.source_name, time: ev.published_at || "Unknown", kind: "Source", q: ev.claim, url: ev.url };
+      srcIds.push(ev.evidence_id);
+    });
+    return {
+      id: e.edge_id, a: e.source_node_id, b: e.target_node_id,
+      t: e.relationship, s: e.strength, ec: 0.85, es: e.strength,
+      cls: evidenceClass(e.evidence_type), src: srcIds,
+      lim: (e.limitations || []).join("; ") || "None recorded.",
+      direction: (e.direction || "UNKNOWN"),
+      direction: (e.direction || "UNKNOWN"),
+    };
+  });
+  return { event, nodes, edges, sources };
+}
+async function fetchLive(text) {
+  const body = text ? { headline: text } : { headline: "OPEC announces crude oil supply disruption" };
+  const res = await fetch(`${API_BASE}/news/event-graph`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body), signal: AbortSignal.timeout(120000),
+  });
+  if (!res.ok) throw new Error(`Backend ${res.status}`);
+  const data = await res.json();
+  if (!data || !data.nodes) throw new Error("Empty graph from backend");
+  const a = adaptEvent(data);
+  LIVE_EVENT = a.event; LIVE_NODES = a.nodes; LIVE_EDGES = a.edges; LIVE_SOURCES = a.sources;
+  deriveFromLiveGraph();
+}
+function useStaticGraph() {
+  LIVE_EVENT = {
+    id: "evt_static", cat: "Commodity Supply", title: "Illustrative crude oil supply disruption",
+    when: "—", pub: "Static demo", url: "",
+    desc: "A hypothetical reduction in crude oil supply may raise oil prices and increase costs for oil-importing economies.",
+    type: "Commodity Supply", assets: "—", move: "—", status: "processed",
+  };
+  LIVE_NODES = [
+    { id: "oil_crude", label: "Crude Oil", short: "Crude Oil", type: "Commodity", x: 100, y: 200, icon: "barrel", col: "#FF4040", desc: "Global crude oil supply and pricing.", sub: "", big: 0 },
+    { id: "india", label: "India", short: "India", type: "Country", x: 300, y: 100, icon: "globe", col: "#2BC4D9", desc: "An economy exposed to imported energy costs.", sub: "", big: 0 },
+    { id: "transport_india", label: "Indian Transportation Sector", short: "Indian Transportation", type: "Sector", x: 300, y: 300, icon: "factory", col: "#2BC4D9", desc: "Transportation businesses exposed to fuel costs.", sub: "", big: 0 },
+  ];
+  LIVE_EDGES = [
+    { id: "e1", a: "oil_crude", b: "transport_india", t: "MAY_INCREASE_FUEL_COSTS", s: 0.65, ec: 0.85, es: 0.65, cls: "inference", src: [], lim: "Illustrative relationship; no event-specific evidence." },
+    { id: "e2", a: "oil_crude", b: "india", t: "MAY_INCREASE_IMPORT_COSTS", s: 0.65, ec: 0.85, es: 0.65, cls: "inference", src: [], lim: "Illustrative relationship; not a measurement of a specific event." },
+  ];
+  LIVE_SOURCES = {};
+}
+
+/* ---- news fetch ---- */
+let NEWS_ARTICLES = [];
+const STATIC_NEWS = [
+  { title: "Oil prices jump as Iran steps up tanker attacks in Strait of Hormuz", url: "#", source: "CNBC", published_at: "Fri, 09 Oct 2026 18:01:09 GMT" },
+  { title: "Refinery outages pumping up fuel prices more than cost of crude oil", url: "#", source: "Federal Reserve Bank of Dallas", published_at: "Thu, 08 Oct 2026 12:00:00 GMT" },
+  { title: "OPEC+ signals deeper supply cuts as crude demand weakens", url: "#", source: "Reuters", published_at: "Wed, 07 Oct 2026 09:15:00 GMT" },
+  { title: "RBI holds repo rate at 6.5% for the eighth straight meeting", url: "#", source: "Reuters", published_at: "Mon, 06 Oct 2026 07:30:00 GMT" },
+  { title: "Fed signals higher-for-longer interest rates as inflation persists", url: "#", source: "Federal Reserve", published_at: "Fri, 03 Oct 2026 20:00:00 GMT" },
+  { title: "The world's oil reserves are being depleted faster than predicted", url: "#", source: "The Economist", published_at: "Thu, 02 Oct 2026 14:22:00 GMT" },
+  { title: "Manufacturers face margin squeeze as energy costs remain elevated", url: "#", source: "Financial Times", published_at: "Tue, 30 Sep 2026 11:00:00 GMT" },
+  { title: "BP curbs production at two Gulf of Mexico platforms after hurricane", url: "#", source: "WSJ", published_at: "Sun, 28 Sep 2026 08:45:00 GMT" },
+];
+async function fetchNewsList() {
+  try {
+    const res = await fetch(`${API_BASE}/news?query=(crude oil OR crude prices OR energy market OR oil supply OR OPEC)&limit=8`, { signal: AbortSignal.timeout(10000) });
+    if (!res.ok) throw new Error(`Backend ${res.status}`);
+    const data = await res.json();
+    if (data.articles && data.articles.length) return data.articles;
+  } catch (err) { console.warn("Live news unavailable, using static demo news:", err.message); }
+  return STATIC_NEWS;
+}
+async function loadNews() {
+  try {
+    NEWS_ARTICLES = await fetchNewsList();
+    console.log("Loaded", NEWS_ARTICLES.length, "articles");
+  } catch (err) { console.warn("News fetch failed:", err.message); NEWS_ARTICLES = STATIC_NEWS; }
+  if (S.view === "home") renderDashboard($("#main"));
+}
+function renderNewsPanel() {
+  if (!NEWS_ARTICLES.length) {
+    return `<section class="panel" style="margin-bottom:12px"><div class="ph"><h3>Live News</h3></div><p class="banner" style="padding:8px 12px 12px">No articles loaded.</p></section>`;
+  }
+  return `<section class="panel" style="margin-bottom:12px">
+    <div class="ph"><h3>Live News</h3><span style="font-size:11px;color:var(--muted)">${NEWS_ARTICLES.length} articles</span></div>
+    <div style="display:flex;flex-direction:column;gap:6px;padding:4px 10px 12px">
+      ${NEWS_ARTICLES.map((a, i) => `
+        <button class="article-btn" data-article-index="${i}">
+          <b>${esc(a.title)}</b>
+          <small>${esc(a.source || "")} · ${esc((a.published_at || "").slice(0, 16))}</small>
+        </button>
+      `).join("")}
+    </div>
+  </section>`;
+}
+
+/* ============ fixture data ============ */
+const EVENT={id:'evt_001',cat:'Geopolitical Event',title:"Iran's Oil Facilities Attacked – Global Supply at Risk",
+  when:'Apr 19, 2025 · 08:32 AM',pub:'Reuters',url:'https://www.reuters.com/',
+  desc:'Reports of strikes on Iranian oil facilities raise concerns about potential supply disruptions in the Middle East, pushing crude oil prices up by 8%.',
+  type:'Geopolitical Conflict',assets:'Crude Oil, Energy Stocks',move:'+8%',status:'processed'};
+const SOURCES={
+  s201:{pub:'Reuters',time:'Apr 19, 2025 · 08:32 AM',kind:'News report',q:'Event report describing strikes on oil facilities and the first reaction in crude futures. Illustrative summary.'},
+  s202:{pub:'EIA',time:'Apr 2025',kind:'Agency outlook',q:'Background on how supply interruptions feed into crude prices and then into fuel-intensive sectors. Illustrative summary.'},
+  s203:{pub:'IMF',time:'Apr 2025',kind:'Economic outlook',q:'Background on energy price pass-through to consumer inflation and policy rates. Illustrative summary.'},
+  s204:{pub:'Market data',time:'Apr 19, 2025',kind:'Price observations',q:'Brent futures closing prices around the event date, with provider and retrieval time stored. Illustrative fixture.'}
+};
+const NODES=[
+  {id:'event',label:'Iran Oil Facility Attacks',short:'Iran Oil Attacks',type:'Event',x:47,y:182,icon:'flame',col:'#FF4040',big:1,desc:'Strikes on oil facilities reported in the Middle East on Apr 19, 2025.'},
+  {id:'crude',label:'Crude Oil',sub:'(+8%)',short:'Oil Prices',type:'Commodity',x:150,y:68,icon:'barrel',col:'#FF4040',desc:'Brent and WTI crude benchmarks. The +8% is the initial observed move in the fixture series.'},
+  {id:'supply',label:'Oil Supply Disruption',short:'Supply Disruption',type:'Event',x:322,y:80,icon:'drop',col:'#2BC4D9',desc:'Potential reduction in oil supply from affected producers and shipping routes.'},
+  {id:'energy',label:'Energy Sector',short:'Energy Sector',type:'Sector',x:252,y:158,icon:'bolt',col:'#FF8A1F',desc:'Energy producers and refiners. Effects can be positive for producers and negative for energy buyers.'},
+  {id:'trans',label:'Transportation',short:'Transportation',type:'Sector',x:432,y:140,icon:'plane',col:'#2BC4D9',sub:'',desc:'Airlines, shipping and logistics where fuel is a large operating cost.'},
+  {id:'manuf',label:'Manufacturing',short:'Manufacturing',type:'Sector',x:436,y:203,icon:'factory',col:'#2BC4D9',desc:'Industrial producers exposed to higher energy and input costs.'},
+  {id:'infl',label:'Inflation Expectations',short:'Inflation Expectations',type:'Indicator',x:243,y:245,icon:'trend',col:'#FF8A1F',desc:'Market-implied inflation outlook, sensitive to energy prices.'},
+  {id:'rates',label:'Interest Rate Expectations',short:'Interest Rates',type:'Indicator',x:352,y:303,icon:'pct',col:'#2FBF71',desc:'Expected policy-rate path, influenced by the inflation outlook.'},
+  {id:'bank',label:'Banking Sector',short:'Banking Sector',type:'Sector',x:487,y:336,icon:'bank',col:'#F2B722',desc:'Banks and financial institutions sensitive to the rate path.'},
+  {id:'real',label:'Real Estate',short:'Real Estate',type:'Sector',x:340,y:366,icon:'home',col:'#FF8A1F',desc:'Property sector sensitive to financing costs.'},
+  {id:'glob',label:'Global Markets',short:'Global Markets',type:'Market',x:72,y:384,icon:'globe',col:'#2BC4D9',desc:'Broad equity benchmarks and risk sentiment.'},
+  {id:'comm',label:'Commodities',sub:'(Gold, Natural Gas)',subCol:'#9FB3CC',short:'Commodities',type:'Market',x:232,y:404,icon:'bars',col:'#F2B722',desc:'Gold and natural gas, often repriced in geopolitical shocks.'}
+];
+const EDGES=[
+  {id:'e01',a:'event',b:'crude',t:'MAY_INFLUENCE',s:.92,ec:.95,es:.90,cls:'observed',src:['s201','s204'],lim:'A same-day price jump is an observed association; other news that day may also contribute.'},
+  {id:'e02',a:'crude',b:'supply',t:'REDUCES_SUPPLY',s:.87,ec:.90,es:.83,cls:'observed',src:['s201','s202'],lim:'Supply loss is reported as potential. Volumes affected are not confirmed.'},
+  {id:'e03',a:'supply',b:'energy',t:'AFFECTS',s:.87,ec:.88,es:.85,cls:'established',src:['s202'],lim:'Direction differs by company type: producers may gain while refiners and buyers face costs.'},
+  {id:'e04',a:'event',b:'energy',t:'AFFECTS',s:.91,ec:.92,es:.88,cls:'observed',src:['s201','s204'],lim:'Energy equities move with oil but also with the wider market.'},
+  {id:'e05',a:'energy',b:'trans',t:'INCREASES_COSTS',s:.68,ec:.80,es:.62,cls:'established',src:['s202'],lim:'Hedging and fuel surcharges can delay or soften the cost effect.'},
+  {id:'e06',a:'energy',b:'manuf',t:'INCREASES_COSTS',s:.62,ec:.78,es:.55,cls:'established',src:['s202'],lim:'Energy intensity varies a lot between manufacturing sub-sectors.'},
+  {id:'e07',a:'energy',b:'infl',t:'MAY_INFLUENCE',s:.71,ec:.82,es:.66,cls:'established',src:['s203'],lim:'Pass-through to inflation depends on how long prices stay high.'},
+  {id:'e08',a:'event',b:'infl',t:'MAY_INFLUENCE',s:.77,ec:.80,es:.72,cls:'inference',src:['s203'],lim:'Hypothesis: a multi-step link proposed by the model and not yet reviewed.'},
+  {id:'e09',a:'infl',b:'rates',t:'MAY_INFLUENCE',s:.58,ec:.74,es:.50,cls:'inference',src:['s203'],lim:'Central banks may look through temporary energy-price shocks.'},
+  {id:'e10',a:'rates',b:'bank',t:'IMPACTS_SECTOR',s:.59,ec:.76,es:.52,cls:'inference',src:['s203'],lim:'Rate effects on banks can be positive or negative depending on balance sheets.'},
+  {id:'e11',a:'rates',b:'real',t:'IMPACTS_SECTOR',s:.49,ec:.72,es:.44,cls:'inference',src:['s203'],lim:'Property effects lag rate changes by quarters, not days.'},
+  {id:'e12',a:'event',b:'glob',t:'AFFECTS',s:.63,ec:.84,es:.58,cls:'observed',src:['s201'],lim:'Risk-off moves can have several simultaneous causes.'},
+  {id:'e13',a:'event',b:'comm',t:'AFFECTS',s:.93,ec:.94,es:.90,cls:'observed',src:['s201','s204'],lim:'Gold and gas reactions were not separated by commodity in this fixture.'},
+  {id:'e14',a:'glob',b:'comm',t:'EXPOSED_TO',s:.48,ec:.70,es:.42,cls:'established',src:['s204'],lim:'Exposure is structural. It is not an event-specific causal claim.'}
+];
+const CLS={observed:{n:'Observed Fact',c:'#FF4040'},established:{n:'Established',c:'#FF8A1F'},inference:{n:'Inference',c:'#2FBF71'}};
+const REL_DESC={MAY_INFLUENCE:'A proposed indirect effect',REDUCES_SUPPLY:'Potential or observed reduction in supply',AFFECTS:'A broad event-to-entity impact association',INCREASES_COSTS:'A cost increase for the target entity',IMPACTS_SECTOR:'Association with a sector',EXPOSED_TO:'Exposure to a commodity, country or risk'};
+const PATHDEFS=[['e02','e03','e05'],['e02','e03','e07'],['e08','e09','e11'],['e02','e03','e06'],['e04','e05'],['e13','e14']];
+const nodeById = id => (LIVE_NODES || NODES).find(n => n.id === id);
+const edgeById = id => (LIVE_EDGES || EDGES).find(e => e.id === id);
+const PATHS=PATHDEFS.map((ids,i)=>{
+  const ed=ids.map(edgeById); const nodes=[ed[0].a,...ed.map(e=>e.b)];
+  const score=gmean(ed.map(e=>e.s));
+  return {id:'p'+i,ids,nodes,score,len:ed.length}
+}).sort((a,b)=>b.score-a.score).slice(0,4).map((p,i)=>({...p,rank:i+1}));
+const COUNTRIES=[
+  {iso:'IRN',n:'Iran',lvl:'sev',gdp:-3.2,sc:9.2,desc:'Direct impact: strikes on oil facilities, export disruption, domestic instability.',
+   direct:['Production and export capacity of affected facilities','Government revenue dependence on oil exports'],indirect:['Sanctions-constrained alternative buyers','Currency and inflation pressure'],
+   ind:[['Oil export share of total exports','High','relative','2023','World Bank (fixture)'],['Facility outage exposure','Direct','qualitative','Apr 2025','Event report (fixture)'],['Substitute buyers available','Low','relative','2023','Trade data (fixture)']],unc:'High exposure with wide uncertainty on outage duration.'},
+  {iso:'USA',n:'USA',lvl:'mod',gdp:-.8,sc:6.8,desc:'Higher oil prices, increased energy costs, possible inflation pressure.',
+   direct:['Fuel costs for transport and households'],indirect:['Inflation and rate expectations','Energy producers may benefit'],
+   ind:[['Net petroleum trade position','Near balance','relative','2024','EIA (fixture)'],['Energy share of CPI basket','Moderate','relative','2024','FRED (fixture)'],['Domestic production buffer','High','relative','2024','EIA (fixture)']],unc:'Net effect is mixed: producers gain while consumers and fuel-heavy sectors lose.'},
+  {iso:'CHN',n:'China',lvl:'mild',gdp:-.3,sc:4.3,desc:'Higher commodity prices, supply chain costs, but alternative supply options.',
+   direct:['Crude import bill'],indirect:['Manufacturing input costs','Export demand from trade partners'],
+   ind:[['Crude import dependence','High','relative','2024','World Bank (fixture)'],['Supplier diversification','High','relative','2024','Trade data (fixture)'],['Strategic reserves','Large','relative','2024','Agency estimate (fixture)']],unc:'Reserves and diversified suppliers lower short-term exposure.'},
+  {iso:'IND',n:'India',lvl:'mod',gdp:-1.1,sc:6.1,desc:'Higher crude oil import bill, increase interest rates, pressure on current account deficit.',
+   direct:['Crude import bill','Current account balance'],indirect:['Rupee pressure','Inflation and policy-rate path'],
+   ind:[['Crude import dependence','Very high','relative','2024','World Bank (fixture)'],['Current account sensitivity','High','relative','2024','IMF (fixture)'],['Fuel price pass-through lag','Moderate','relative','2024','Agency estimate (fixture)']],unc:'Pass-through depends on domestic fuel pricing policy.'},
+  {iso:'EUU',n:'EU',lvl:'mod',gdp:-.7,sc:5.7,desc:'Energy import dependency, inflation pressure, monetary policy response.',
+   direct:['Energy import bill'],indirect:['Inflation and ECB policy path','Industrial energy costs'],
+   ind:[['Energy import dependence','High','relative','2024','Eurostat (fixture)'],['Gas storage buffer','Moderate','relative','2025','Agency estimate (fixture)'],['Industry energy intensity','Moderate','relative','2024','Eurostat (fixture)']],unc:'Gas and oil effects are different channels and are not separated here.'},
+  {iso:'OTH',n:'Others',lvl:'low',gdp:-.2,sc:2.1,desc:'Indirect impact through global trade and commodity prices.',
+   direct:['Few direct exposures'],indirect:['Global trade and commodity prices'],
+   ind:[['Aggregate exposure','Low','relative','2024','Composite (fixture)']],unc:'Aggregated group. Country detail is not available.'}
+];
+const SECTORS=[
+  ['Energy','high','u','Short','2'],['Transportation','high','u','Short','2'],['Materials','mod','f','Medium','1'],['Banking & Financials','mod','f','Medium','1'],
+  ['Real Estate','mod','f','Medium','1'],['Consumer Goods','low','d','Medium','1'],['Technology','low','d','Medium','1'],['Healthcare','low','d','Long','1']
+];
+const ASSETS=[
+  ['Brent Crude','ICE · USD','+8.0%','high','u','1 day'],['Gold','Spot · USD','+0.67%','mod','f','1 day'],['S&P 500','NYSE · USD','+1.24%','low','d','1 day'],
+  ['NIFTY 50','NSE · INR','+1.18%','low','d','1 day'],['Energy equities (basket)','Index · USD','+3.1%','high','u','1 week']
+];
+const MKT=[['S&P 500','5,021.84','+1.24%',1],['NIFTY 50','22,789.60','+1.18%',1],['Brent Crude','86.42','-1.32%',0],['Gold','2,341.70','+0.67%',1]];
+const HIST=[['2019 · Iran tensions','+5.2%','+8.7%'],['2022 · Supply shock','+5.2%','+8.7%']];
+const EVENTS=[
+  {id:'evt_001',title:EVENT.title,type:'Geopolitical Conflict',date:'Apr 19, 2025',status:'processed'},
+  {id:'evt_002',title:'Shipping delays reported near the Gulf',type:'Supply Chain',date:'Apr 18, 2025',status:'unprocessed'},
+  {id:'evt_003',title:'Central bank signals a pause on rate changes',type:'Monetary Policy',date:'Apr 16, 2025',status:'unprocessed'},
+  {id:'evt_004',title:'Producer group reviews output targets',type:'Commodity Supply',date:'Apr 14, 2025',status:'unprocessed'}
+];
+const SERIES=(()=>{
+  let seed=20250419; const r=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
+  const out=[]; const d=new Date(Date.UTC(2024,0,2)); const end=Date.UTC(2025,3,18);
+  let p=69;
+  while(d.getTime()<=end){
+    const wd=d.getUTCDay();
+    if(wd!==0&&wd!==6){
+      const i=out.length;
+      p+=(74-p)*.02+(r()-.5)*1.7+(i>300?.09:0);
+      out.push({t:d.getTime(),p:Math.round(p*100)/100});
+    }
+    d.setUTCDate(d.getUTCDate()+1);
+  }
+  const last=out[out.length-1].p;
+  out.push({t:Date.UTC(2025,3,19),p:Math.round(last*1.08*100)/100,ev:1});
+  return out;
+})();
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtD=t=>{const d=new Date(t);return MON[d.getUTCMonth()]+' '+d.getUTCDate()+', '+d.getUTCFullYear()};
+const fmtM=t=>{const d=new Date(t);return MON[d.getUTCMonth()]+' '+d.getUTCFullYear()};
+
+const S={view:'home',tab:'graph',sub:'graph',selNode:null,selEdge:null,selPath:null,types:{Event:1,Commodity:1,Sector:1,Indicator:1,Market:1},rel:'ALL',filtersOpen:false,win:'All',sect:'Sectors',jobs:{}};
+
+const NAV=[['home','Home','<path d="M3 11 12 3l9 8v10H3z"/>'],
+  ['events','Event Explorer','<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>'],
+  ['graph','Impact Graph','<circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="m8 7 8 1M7 8l4 8M17 10l-4 6"/>'],
+  ['stocks','Stocks','<path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/>'],
+  ['watchlist','Watchlist','<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.2 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/>'],
+  ['history','Historical Analysis','<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'],
+  ['reports','Reports','<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/>'],
+  ['settings','Settings','<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h0a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v0a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>']];
+
+function go(v){
+  S.view=v;
+  if(v==='graph'){S.view='home';S.tab='graph';S.sub='graph'}
+  if(v==='map'){S.view='home';S.tab='graph';S.sub='map'}
+  closeDrawer();
+  renderNav();renderMain();window.scrollTo({top:0});
+  try{history.replaceState(null,'','#'+v)}catch(e){}
+}
+
+/* renderNav — restored, with Home → index.html */
+function renderNav(){
+  const nav=$('#nav'); if(!nav) return;
+  nav.innerHTML=NAV.map(([id,l,p])=>`<button data-v="${id}" ${id===(S._nav||S.view)?'aria-current="page"':''}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg><span>${l}</span></button>`).join('');
+  $$('#nav button').forEach(b=>b.onclick=()=>{
+    if(b.dataset.v==='home'){
+      window.location.href='index.html';
+      return;
+    }
+    S._nav=b.dataset.v;
+    go(b.dataset.v);
+    renderNav();
+  });
+}
+
+function renderMkt(){
+  $('#mkt').innerHTML=MKT.map(([n,v,c,u])=>`<div class="mrow"><span>${n}</span><div><span class="num">${v}</span><small class="num ${u?'up':'dn'}">${u?'▲':'▼'} ${c}</small></div></div>`).join('');
+}
+
+function renderMain(){
+  const m=$('#main');
+  const shell=$('.shell');
+  shell.classList.toggle('noleft',S.view!=='home');
+  shell.classList.toggle('norail',S.view!=='home');
+  if(S.view==='home'){
+    renderSectSidebar();
+    renderDashboard(m);
+    $('#rail').style.display='';
+    renderRail();
+    return;
+  }
+  $('#rail').style.display='none';
+  $('#sectp').innerHTML='';
+  if(S.view==='events') return renderEvents(m);
+  if(S.view==='stocks') return renderStocks(m);
+  if(S.view==='watchlist') return simpleView(m,'Watchlist','/api/v1/watchlists',['Entity','Type','Last move','Linked event'],[['Brent Crude','Commodity','+8.0%','Iran oil facilities'],['Airlines','Sector','Fixture only','Iran oil facilities'],['Gold','Commodity','+0.67%','Iran oil facilities'],['India','Country','Moderate','Iran oil facilities']]);
+  if(S.view==='history') return simpleView(m,'Historical Analysis','/api/v1/historical-events',['Comparable event','1-week impact','1-month impact','Note'],HIST.map(h=>[h[0],h[1],h[2],'Fixture values. Missing data and confounders not yet listed.']));
+  if(S.view==='reports') return simpleView(m,'Reports','/api/v1/reports',['Report','Event','Created','Status'],[['Oil shock summary','evt_001','Oct 11, 2026','Draft'],['Sector exposure brief','evt_001','Oct 11, 2026','Not generated']]);
+  if(S.view==='settings') return settingsView(m);
+}
+function simpleView(m,title,ep,cols,rows){
+  m.innerHTML=`<section class="panel view"><h2>${title}</h2><div class="ep">GET ${ep}</div>
+  <div class="tscroll"><table class="tbl"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+  <p class="banner">Rows are illustrative fixtures that show the data contract for this page.</p></section>`;
+}
+function settingsView(m){
+  m.innerHTML=`<section class="panel view"><h2>Settings</h2><div class="ep">GET /api/v1/users/me/preferences</div>
+  <div style="display:flex;flex-direction:column;gap:12px;max-width:420px">
+   <label>Default observation window<br><select id="setwin" style="margin-top:6px;background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:7px 10px;font:inherit"><option>1Y</option><option>6M</option><option>3M</option><option selected>All</option></select></label>
+   <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="setrel" checked> Show relationship scores on graph edges</label>
+   <button class="btn" id="setsave" style="align-self:flex-start">Save preferences</button></div></section>`;
+  $('#setsave').onclick=()=>{S.win=$('#setwin').value;toast('Preferences saved for this session')};
+}
+function renderEvents(m){
+  m.innerHTML=`<section class="panel view"><h2>Event Explorer</h2><div class="ep">GET /api/v1/events · POST /api/v1/events/{id}/process</div>
+  <div class="tscroll"><table class="tbl"><thead><tr><th>Event</th><th>Type</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody>
+  ${EVENTS.map(e=>`<tr><td><b style="font-weight:500">${esc(e.title)}</b><div class="mono" style="color:var(--dim);font-size:11px">${e.id}</div></td><td>${esc(e.type)}</td><td>${e.date}</td>
+   <td id="st-${e.id}">${statusChip(e)}</td>
+   <td>${e.status==='processed'?`<button class="btn" data-open="${e.id}">Open</button>`:`<button class="btn ghost" data-job="${e.id}">Queue analysis</button>`}</td></tr>`).join('')}
+  </tbody></table></div><p class="banner">Processing runs as a background job: queued, running, completed or failed. Extraction is not re-run when an existing event is opened.</p></section>`;
+  $$('[data-open]',m).forEach(b=>b.onclick=()=>{S._nav='home';S.tab='graph';go('home');renderNav()});
+  $$('[data-job]',m).forEach(b=>b.onclick=()=>runJob(b.dataset.job,b));
+}
+function statusChip(e){
+  const j=S.jobs[e.id]; const st=j||e.status;
+  const map={processed:['mild','Processed'],unprocessed:['low','Not processed'],queued:['mod','Queued'],running:['high','Running'],failed:['sev','Failed']};
+  const [l,t]=map[st]||map.unprocessed; return pill(l,t);
+}
+function runJob(id,btn){
+  btn.disabled=true;const seq=['queued','running'];let i=0;
+  const tick=()=>{S.jobs[id]=seq[i];const c=$('#st-'+id);if(c)c.innerHTML=statusChip({id,status:'unprocessed'});i++;
+    if(i<=seq.length) setTimeout(tick,1200); else {S.jobs[id]='unprocessed';delete S.jobs[id];const c2=$('#st-'+id);if(c2)c2.innerHTML=pill('mod','Awaiting backend');toast('Demo only: no backend is connected, so no graph was generated');btn.disabled=false}};
+  tick();
+}
+
+/* left sidebar */
+function renderSectSidebar(){
+  const el=$('#sectp');if(!el)return;
+  const sec=S.sect==='Sectors';
+  el.innerHTML=`<div class="ph"><h3>Impact by Sector</h3><div class="seg" role="group" aria-label="Table mode"><button aria-pressed="${sec}" data-s="Sectors">Sectors</button><button aria-pressed="${!sec}" data-s="Assets">Assets</button></div></div>
+  <div class="tscroll" style="padding:0 8px 8px"><table class="tbl"><thead><tr><th>${sec?'Sector':'Asset'}</th><th>${sec?'Impact':'Observed'}</th><th>Trend</th></tr></thead><tbody>
+  ${sec?SECTORS.map(s=>`<tr><td>${s[0]}</td><td>${pill(s[1],s[1]==='mod'?'Medium':null)}</td><td>${arrow(s[2])}</td></tr>`).join(''):ASSETS.map(a=>`<tr><td>${a[0]}</td><td class="num">${a[2]}</td><td>${arrow(a[4])}</td></tr>`).join('')}
+  </tbody></table></div>`;
+  $$('[data-s]',el).forEach(b=>b.onclick=()=>{S.sect=b.dataset.s;renderSectSidebar()});
+}
+
+function renderDashboard(m){
+  const e = LIVE_EVENT || EVENT;
+  m.innerHTML=`
+  ${renderNewsPanel()}
+  <section class="panel event" aria-label="Selected event">
+    <div class="evicon" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="1" stroke-linejoin="round">${ICON.flame}</svg></div>
+    <div style="min-width:0"><span class="cat">${esc(e.cat)}</span>
+      <h1>${esc(e.title)}</h1>
+      <div class="meta">${e.when} · <a href="${e.url}" target="_blank" rel="noopener noreferrer">${e.pub}</a></div>
+      <p>${esc(e.desc)}</p></div>
+    <div class="facts">
+      <div class="fact"><small><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Event Type</small><b>${esc(e.type)}</b></div>
+      <div class="fact"><small><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="m8 7 8 1M7 8l4 8M17 10l-4 6"/></svg>Affected Assets</small><b>${esc(e.assets)}</b></div>
+      <div class="fact"><small><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 21h18M6 17V9M11 17V5M16 17v-6M21 17V7"/></svg>Initial Impact</small><b>Oil Prices <span class="big num">▲ ${e.move}</span></b></div>
+    </div>
+  </section>
+  <div class="tabs" role="tablist" id="tabs">
+    ${[['graph','Impact Graph'],['country','Country Impact'],['sectors','Sectors'],['assets','Assets'],['rels','Key Relationships'],['evid','Evidence']].map(([id,l])=>`<button role="tab" data-t="${id}" aria-selected="${S.tab===id}">${l}</button>`).join('')}
+  </div>
+  <div class="stagewrap" id="stagewrap"></div>
+  <div class="trio">
+    <section class="panel" id="pathp"></section>
+    <section class="panel chartp" id="chartp"></section>
+  </div>`;
+
+  /* Option E: news click → live analysis */
+  $$('[data-article-index]').forEach(btn => {
+    btn.onclick = async () => {
+      const idx = +btn.dataset.articleIndex;
+      const article = NEWS_ARTICLES[idx];
+      if (!article) return;
+
+      const originalHTML = btn.innerHTML;
+      const main = $("#main");
+      const overlay = document.createElement("div");
+      overlay.style.cssText = "position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#0D3560;border:1px solid #1A5BA8;border-radius:6px;padding:12px 20px;z-index:9999;font-size:13px;color:#fff;box-shadow:0 8px 24px #0008;display:flex;align-items:center;gap:10px";
+      overlay.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></span>Analyzing "' + esc(article.title.slice(0, 60)) + '"... (20-40s)';
+      document.body.appendChild(overlay);
+
+      btn.style.opacity = "0.5";
+      btn.style.pointerEvents = "none";
+      btn.innerHTML = '<b>? Analyzing... please wait 20-40 seconds</b><small>' + esc(article.title.slice(0, 80)) + '</small>';
+
+      try {
+        await fetchLive(article.title);
+        // Rebuild only the stage + rail, not the whole dashboard
+        renderStage();
+        renderPaths();
+        renderChart();
+        renderRail();
+        toast("? Graph updated from: " + article.title.slice(0, 60));
+      } catch (err) {
+        console.warn("Article analysis failed:", err.message);
+        toast("? " + (err.message || "Analysis failed. Try another article."));
+      } finally {
+        btn.style.opacity = "";
+        btn.style.pointerEvents = "";
+        btn.innerHTML = originalHTML;
+        overlay.remove();
+      }
+    };
+  });
+
+  $$('#tabs button').forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;$$('#tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));renderStage()});
+  renderStage();renderPaths();renderChart();
+}
+
+function renderStage(){
+  const w=$('#stagewrap');
+  if(S.tab==='graph'){
+    w.innerHTML=`<div class="seg subtoggle" role="group" aria-label="Switch view"><button data-sub="graph" aria-pressed="${S.sub==='graph'}">Impact Graph</button><button data-sub="map" aria-pressed="${S.sub==='map'}">Country Map</button></div>
+    <div class="stage" id="stage" data-sub="${S.sub}" style="min-height:460px">
+      <section class="panel graphp" aria-label="Impact graph" id="graphp"></section>
+      <section class="panel mapp" aria-label="Country-wise impact" id="mapp"></section>
+    </div>`;
+    $$('.subtoggle button',w).forEach(b=>b.onclick=()=>{S.sub=b.dataset.sub;$('#stage').dataset.sub=S.sub;$$('.subtoggle button',w).forEach(x=>x.setAttribute('aria-pressed',x===b))});
+    renderGraph();renderMap();return;
+  }
+  const Pn=(h,body)=>`<section class="panel"><div class="ph"><h3>${h}</h3></div>${body}</section>`;
+  if(S.tab==='country') w.innerHTML=Pn('Country Impact',`<div class="tscroll"><table class="tbl"><thead><tr><th>Country</th><th>Severity</th><th>GDP (est.)</th><th>Exposure score</th><th>Mechanism</th><th></th></tr></thead><tbody>${(LIVE_COUNTRIES||COUNTRIES).map(c=>`<tr class="clk" data-c="${c.iso}"><td><b style="font-weight:600">${c.n}</b></td><td>${pill(c.lvl)}</td><td class="num">${c.gdp}%</td><td class="num">${c.sc.toFixed(1)}</td><td style="min-width:260px">${esc(c.desc)}</td><td><button class="link">Details →</button></td></tr>`).join('')}</tbody></table></div>`);
+  if(S.tab==='sectors') w.innerHTML=Pn('Sectors',`<div class="tscroll"><table class="tbl"><thead><tr><th>Sector</th><th>Impact</th><th>Direction</th><th>Horizon</th><th>Evidence</th></tr></thead><tbody>${(LIVE_SECTORS||SECTORS).map(s=>`<tr><td>${s[0]}</td><td>${pill(s[1],s[1]==='mod'?'Medium':null)}</td><td>${arrow(s[2])}</td><td>${s[3]}</td><td class="num">${s[4]} source${s[4]>1?'s':''}</td></tr>`).join('')}</tbody></table></div>`);
+  if(S.tab==='assets') w.innerHTML=Pn('Assets',`<div class="tscroll"><table class="tbl"><thead><tr><th>Asset</th><th>Venue</th><th>Observed move</th><th>Impact</th><th>Window</th></tr></thead><tbody>${(LIVE_ASSETS||ASSETS).map(a=>`<tr><td>${a[0]}</td><td>${a[1]}</td><td class="num">${a[2]}</td><td>${pill(a[3],a[3]==='mod'?'Medium':null)}</td><td>${a[5]}</td></tr>`).join('')}</tbody></table></div><p class="banner" style="padding:0 12px 10px">Observed moves show association with the event date, not proven causation.</p>`);
+  if(S.tab==='rels') w.innerHTML=Pn('Key Relationships',`<div class="tscroll"><table class="tbl"><thead><tr><th>From</th><th>Relationship</th><th>To</th><th>Score</th><th>Class</th></tr></thead><tbody>${[...(LIVE_EDGES||EDGES)].sort((a,b)=>b.s-a.s).map(e=>`<tr class="clk" data-e="${e.id}"><td>${nodeById(e.a).short}</td><td class="mono" style="font-size:11px">${e.t}</td><td>${nodeById(e.b).short}</td><td class="num">${e.s.toFixed(2)} ${pill(strLvl(e.s),strength(e.s))}</td><td><span class="dot" style="background:${CLS[e.cls].c}"></span>${CLS[e.cls].n}</td></tr>`).join('')}</tbody></table></div>`);
+  if(S.tab==='evid') w.innerHTML=Pn('Evidence',`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px;padding:4px 12px 14px">${Object.entries(LIVE_SOURCES||SOURCES).map(([id,s])=>`<div class="src"><b>${s.pub}</b> <span class="mono" style="color:var(--dim);font-size:11px">${id}</span><small>${s.kind} · ${s.time}</small><q>${esc(s.q)}</q></div>`).join('')||'<p class="banner">No sources for the current event.</p>'}</div>`);
+  $$('[data-c]',w).forEach(r=>r.onclick=()=>openCountry(r.dataset.c));
+  $$('[data-e]',w).forEach(r=>r.onclick=()=>openEdge(r.dataset.e));
+}
+const arrow=d=>d==='u'?'<span class="arr u" title="Rising impact" aria-label="Rising">↑</span>':d==='d'?'<span class="arr d" title="Falling impact" aria-label="Falling">↓</span>':'<span class="arr f" title="Flat or mixed" aria-label="Flat or mixed">→</span>';
+
+function viewport(svg,base,onChange){
+  const a=(svg.getAttribute('viewBox')||'').split(/\s+/).map(Number);
+  let vb=a.length===4&&a.every(isFinite)?{x:a[0],y:a[1],w:a[2],h:a[3]}:{...base};
+  const set=()=>{svg.setAttribute('viewBox',`${vb.x} ${vb.y} ${vb.w} ${vb.h}`);onChange&&onChange(vb)};
+  const clamp=()=>{vb.w=Math.min(base.w,Math.max(base.w/4,vb.w));vb.h=vb.w*base.h/base.w;
+    vb.x=Math.min(base.x+base.w-vb.w,Math.max(base.x,vb.x));vb.y=Math.min(base.y+base.h-vb.h,Math.max(base.y,vb.y))};
+  const zoom=f=>{const cx=vb.x+vb.w/2,cy=vb.y+vb.h/2;vb.w/=f;vb.h/=f;vb.x=cx-vb.w/2;vb.y=cy-vb.h/2;clamp();set()};
+  let drag=null;
+  svg.addEventListener('pointerdown',e=>{if(e.target.closest('[data-hit]'))return;drag={x:e.clientX,y:e.clientY,vx:vb.x,vy:vb.y,moved:false};});
+  svg.addEventListener('pointermove',e=>{if(!drag)return;const r=svg.getBoundingClientRect();const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+    if(Math.abs(dx)+Math.abs(dy)>5){drag.moved=true;try{svg.setPointerCapture(e.pointerId)}catch(_){}}
+    if(drag.moved){vb.x=drag.vx-dx*vb.w/r.width;vb.y=drag.vy-dy*vb.h/r.height;clamp();set()}});
+  const end=()=>{if(drag&&drag.moved)svg._moved=Date.now();drag=null};
+  svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
+  return {zoomIn:()=>zoom(1.3),zoomOut:()=>zoom(1/1.3),reset:()=>{vb={...base};set()}};
+}
+
+function splitLabel(l){
+  if(l.length<=17)return [l];
+  const mid=l.length/2;let best=-1;
+  for(let i=0;i<l.length;i++)if(l[i]===' '&&(best<0||Math.abs(i-mid)<Math.abs(best-mid)))best=i;
+  return best<0?[l]:[l.slice(0,best),l.slice(best+1)];
+}
+const LN=n=>n.sub?[n.label,n.sub]:splitLabel(n.label);
+const NW=n=>n.big?0:Math.max(96,48+Math.max(...LN(n).map(s=>s.length))*5.3), NH=34;
+function visibleGraph(){
+  const allNodes = LIVE_NODES || NODES;
+  const allEdges = LIVE_EDGES || EDGES;
+  const nodes = allNodes.filter(n=>S.types[n.type]);
+  const ids = new Set(nodes.map(n=>n.id));
+  const edges = allEdges.filter(e => ids.has(e.a) && ids.has(e.b) && (S.rel === 'ALL' || e.t === S.rel));
+  return { nodes, edges };
+}
+function border(n,tx,ty){
+  const dx=tx-n.x,dy=ty-n.y;const d=Math.hypot(dx,dy)||1;
+  if(n.big){return [n.x+dx/d*33,n.y+dy/d*33]}
+  const hw=NW(n)/2+2,hh=NH/2+2;const t=Math.min(hw/Math.abs(dx||1e-6),hh/Math.abs(dy||1e-6));
+  return [n.x+dx*t,n.y+dy*t];
+}
+function edgeGeom(e){
+  const A=nodeById(e.a),B=nodeById(e.b);
+  const [x1,y1]=border(A,B.x,B.y),[x2,y2]=border(B,A.x,A.y);
+  const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1,k=.1;
+  const cx=(x1+x2)/2-dy*k,cy=(y1+y2)/2+dx*k;
+  return {d:`M${x1.toFixed(1)} ${y1.toFixed(1)} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`,mx:.25*x1+.5*cx+.25*x2,my:.25*y1+.5*cy+.25*y2};
+}
+function renderGraph(){
+  const g=$('#graphp');if(!g)return;
+  const {nodes,edges}=visibleGraph();
+  const allEdges = LIVE_EDGES || EDGES;
+  const relTypes=[...new Set(allEdges.map(e=>e.t))];
+  const hiEdges=new Set();let hiNodes=null;
+  if(S.selPath&&LIVE_NODES===null){const p=PATHS.find(x=>x.id===S.selPath);if(p){p.ids.forEach(i=>hiEdges.add(i));hiNodes=new Set(p.nodes)}}
+  else if(S.selEdge){hiEdges.add(S.selEdge);const e=edgeById(S.selEdge);if(e){hiNodes=new Set([e.a,e.b])}}
+  else if(S.selNode){hiNodes=new Set([S.selNode]);allEdges.forEach(e=>{if(e.a===S.selNode||e.b===S.selNode){hiEdges.add(e.id);hiNodes.add(e.a);hiNodes.add(e.b)}})}
+  const marker=(id,c)=>`<marker id="${id}" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="${c}"/></marker>`;
+  const edgeSvg=edges.map(e=>{
+    const gm=edgeGeom(e),c=strCol(e.s),on=!hiNodes||hiEdges.has(e.id),sel=hiEdges.has(e.id)&&hiNodes;
+    const stroke=sel?'#5AA2FF':c;
+    return `<g class="gedge ${on?'':'dim'}" data-hit="e" data-id="${e.id}" tabindex="0" role="button" aria-label="${esc(nodeById(e.a).short)} to ${esc(nodeById(e.b).short)}, ${e.t}, score ${e.s.toFixed(2)}">
+      <path d="${gm.d}" fill="none" stroke="transparent" stroke-width="14"/>
+      <path d="${gm.d}" fill="none" stroke="${stroke}" stroke-width="${sel?2.6:1.5}" ${e.cls==='inference'?'stroke-dasharray="5 3"':''} marker-end="url(#m-${sel?'sel':e.s>=.7?'s':e.s>=.4?'m':'w'})"/>
+      <rect x="${(gm.mx-13).toFixed(1)}" y="${(gm.my-7.5).toFixed(1)}" width="26" height="15" rx="3" fill="#04101F" stroke="${stroke}" stroke-width=".8"/>
+      <text x="${gm.mx.toFixed(1)}" y="${(gm.my+3.6).toFixed(1)}" text-anchor="middle" font-size="9.5" font-family="IBM Plex Mono,monospace" fill="#E8F0FA">${e.s.toFixed(2)}</text></g>`}).join('');
+  const nodeSvg=nodes.map(n=>{
+    const on=!hiNodes||hiNodes.has(n.id),selN=S.selNode===n.id;
+    if(n.big){return `<g class="gnode ${on?'':'dim'}" data-hit="n" data-id="${n.id}" transform="translate(${n.x} ${n.y})" tabindex="0" role="button" aria-label="${esc(n.label)}, ${n.type}">
+      <circle r="36" fill="#FF4040" opacity=".14" filter="url(#glow)"/><circle class="ring" r="33" fill="#2A0B13" stroke="${selN?'#5AA2FF':n.col}" stroke-width="${selN?3:2}"/>
+      <g transform="translate(-10 -27)" stroke="#FF6A6A" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON.barrel.replace(/<rect[^>]*>/,'<rect x="5" y="2" width="14" height="14" rx="2.5"/>')}</g>
+      <text y="9" text-anchor="middle" font-size="9" font-weight="600" fill="#fff">Iran Oil Facility</text><text y="20" text-anchor="middle" font-size="9" font-weight="600" fill="#fff">Attacks</text></g>`}
+    const w=NW(n);
+    return `<g class="gnode ${on?'':'dim'}" data-hit="n" data-id="${n.id}" transform="translate(${n.x} ${n.y})" tabindex="0" role="button" aria-label="${esc(n.label)}, ${n.type}">
+      <rect x="${-w/2}" y="${-NH/2}" width="${w}" height="${NH}" rx="${NH/2}" fill="#071B30" stroke="${selN?'#5AA2FF':n.col}" stroke-width="${selN?2.6:1.6}"/>
+      <circle cx="${-w/2+19}" cy="0" r="14" fill="${n.col}" fill-opacity=".18" stroke="${n.col}" stroke-opacity=".7"/>
+      <g transform="translate(${-w/2+10} -9) scale(.75)" stroke="${n.col}" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[n.icon]||''}</g>
+      ${(()=>{const ls=LN(n);return ls.map((t,i)=>`<text x="${-w/2+38}" y="${ls.length===1?3.5:(i?10:-1.5)}" font-size="${n.sub&&i?9.2:9.8}" font-weight="${n.sub&&i?400:500}" fill="${n.sub&&i?(n.subCol||'#FF8A8A'):'#E8F0FA'}">${esc(t)}</text>`).join('')})()}</g>`}).join('');
+  g.innerHTML=`
+    <div class="legend"><span><i class="dot" style="background:${COL.sev}"></i>Strong (0.7 – 1.0)</span><span><i class="dot" style="background:${COL.high}"></i>Medium (0.4 – 0.7)</span><span><i class="dot" style="background:${COL.mild}"></i>Weak (0.0 – 0.4)</span>
+      <button class="chip sp" id="ftoggle" aria-expanded="${S.filtersOpen}" aria-controls="filters"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg>Filters</button></div>
+    <div class="filters ${S.filtersOpen?'on':''}" id="filters">
+      ${Object.keys(S.types).map(t=>`<button class="chip" data-type="${t}" aria-pressed="${!!S.types[t]}">${t}</button>`).join('')}
+      <select id="relsel" aria-label="Relationship type"><option value="ALL">All relationship types</option>${relTypes.map(t=>`<option ${S.rel===t?'selected':''}>${t}</option>`).join('')}</select>
+    </div>
+    <svg class="vp" id="gsvg" viewBox="0 0 540 440" role="group" aria-label="Impact graph. Arrows point from cause to effect.">
+      <defs>${marker('m-s',COL.sev)}${marker('m-m',COL.high)}${marker('m-w',COL.mild)}${marker('m-sel','#5AA2FF')}
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter></defs>
+      <rect x="0" y="0" width="540" height="440" fill="transparent"/>
+      <g id="gview">${edgeSvg}${nodeSvg}</g>
+    </svg>
+    <div class="zoomctl"><button id="gzi" aria-label="Zoom in"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button id="gzo" aria-label="Zoom out"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+      <button id="gfit" aria-label="Fit to screen and reset"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button></div>
+    ${edges.length===0?'<p class="banner" style="padding:0 6px">No relationships match the current filters.</p>':''}`;
+  const svg=$('#gsvg');
+  if(renderGraph.vb){svg.setAttribute('viewBox',renderGraph.vb)}
+  const vp=viewport(svg,{x:0,y:0,w:540,h:440},v=>{renderGraph.vb=`${v.x} ${v.y} ${v.w} ${v.h}`});
+  $('#gzi').onclick=vp.zoomIn;$('#gzo').onclick=vp.zoomOut;$('#gfit').onclick=()=>{renderGraph.vb=null;S.selNode=S.selEdge=S.selPath=null;closeDrawer();renderGraph();renderPaths()};
+  svg.addEventListener('click',ev=>{
+    if(svg._moved&&Date.now()-svg._moved<250)return;
+    const h=ev.target.closest('[data-hit]');
+    if(!h){if(S.selNode||S.selEdge||S.selPath){S.selNode=S.selEdge=S.selPath=null;closeDrawer();renderGraph();renderPaths()}return}
+    h.dataset.hit==='n'?openNode(h.dataset.id):openEdge(h.dataset.id);
+  });
+  svg.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){const h=ev.target.closest('[data-hit]');if(h){ev.preventDefault();h.dataset.hit==='n'?openNode(h.dataset.id):openEdge(h.dataset.id)}}});
+  $('#ftoggle').onclick=()=>{S.filtersOpen=!S.filtersOpen;renderGraph()};
+  $$('[data-type]',g).forEach(b=>b.onclick=()=>{S.types[b.dataset.type]=S.types[b.dataset.type]?0:1;renderGraph()});
+  $('#relsel').onchange=e=>{S.rel=e.target.value;renderGraph()};
+}
+
+const P=pts=>pts.map(([lo,la])=>`${(lo+180).toFixed(1)},${(90-la).toFixed(1)}`).join(' ');
+const LAND={
+  na:[[-168,65],[-156,71],[-141,70],[-125,70],[-110,68],[-95,68],[-82,66],[-78,58],[-80,52],[-72,58],[-64,60],[-60,55],[-56,52],[-66,45],[-70,42],[-76,38],[-81,31],[-80,26],[-83,29],[-90,30],[-97,27],[-97,22],[-91,19],[-87,21],[-88,16],[-83,10],[-78,8],[-86,12],[-92,15],[-105,20],[-110,24],[-115,30],[-117,32],[-121,35],[-124,40],[-124,48],[-130,54],[-140,60],[-152,59],[-160,56],[-165,60]],
+  gl:[[-55,60],[-45,60],[-20,70],[-20,80],[-60,82],[-70,77],[-55,70]],
+  sa:[[-78,8],[-72,12],[-62,10],[-52,5],[-50,0],[-35,-5],[-39,-15],[-48,-26],[-58,-35],[-65,-42],[-68,-52],[-72,-52],[-74,-45],[-71,-30],[-70,-18],[-76,-14],[-81,-5],[-80,0],[-77,4]],
+  eu:[[-9,43],[-4,48],[2,51],[8,54],[10,57],[5,59],[5,62],[15,69],[28,71],[40,67],[44,68],[60,69],[70,73],[90,76],[110,77],[140,72],[160,70],[180,68],[180,65],[170,60],[162,60],[156,52],[140,54],[135,43],[130,42],[126,38],[129,35],[122,40],[120,35],[122,30],[117,23],[108,21],[106,10],[100,13],[104,2],[98,8],[98,16],[92,22],[88,22],[80,15],[77,8],[73,17],[70,22],[66,25],[58,25],[56,27],[50,30],[48,29],[52,24],[57,22],[52,17],[43,13],[35,28],[34,31],[36,36],[28,37],[26,41],[23,36],[20,40],[13,45],[16,41],[16,38],[12,42],[9,44],[3,43],[-1,37],[-6,36],[-9,37]],
+  af:[[-17,21],[-10,30],[-6,36],[10,37],[11,33],[20,31],[32,31],[35,28],[43,12],[51,12],[41,-2],[40,-15],[35,-25],[27,-34],[18,-34],[12,-17],[9,-1],[9,4],[-8,4],[-15,10],[-17,15]],
+  au:[[114,-22],[122,-18],[130,-12],[137,-12],[142,-11],[146,-19],[153,-26],[150,-37],[141,-38],[131,-31],[115,-34]],
+  uk:[[-5,50],[1,51],[-2,57],[-5,58],[-6,54]],
+  jp:[[130,31],[135,34],[141,38],[142,45],[140,41],[133,36]],
+  id:[[95,5],[105,-6],[115,-8],[120,-8],[110,-2],[100,2]]
+};
+const REG=[
+  {iso:'GULF',n:'Gulf states',lvl:'high',sc:7.4,pts:[[35,32],[39,37],[44,37],[46,33],[48,31],[50,30],[52,24],[57,22],[52,17],[43,13],[35,28]],lab:null},
+  {iso:'IRN',n:'Iran',lvl:'sev',pts:[[44,39],[48,38],[54,37],[61,36],[61,31],[63,26],[57,25],[52,27],[49,30],[48,31],[46,33],[44,37]],lab:[56,33.5]},
+  {iso:'IND',n:'India',lvl:'mod',pts:[[68,24],[72,34],[78,35],[80,30],[88,27],[92,27],[89,22],[80,15],[77,8],[73,17],[70,21]],lab:[80,17]},
+  {iso:'CHN',n:'China',lvl:'mild',pts:[[74,38],[80,43],[88,48],[96,43],[110,43],[120,50],[126,52],[135,48],[130,42],[122,40],[122,30],[117,23],[108,21],[98,24],[92,28],[80,30],[78,35]],lab:[105,35]},
+  {iso:'EUU',n:'EU',lvl:'mod',pts:[[-9,37],[-9,43],[-4,48],[2,51],[8,54],[11,56],[14,54],[24,55],[24,50],[28,48],[26,44],[23,41],[23,37],[16,38],[12,42],[3,43],[-1,37]],lab:[8,47]},
+  {iso:'USA',n:'USA',lvl:'mod',pts:[[-124,48.5],[-95,49],[-89,48],[-83,46],[-82,43],[-76,44],[-67,45],[-70,42],[-76,38],[-81,31],[-80,26],[-83,29],[-90,30],[-97,26],[-104,29],[-111,31],[-117,32.5],[-121,35],[-124,40]],lab:[-100,38]}
+];
+const cdata=iso=>COUNTRIES.find(c=>c.iso===iso);
+function renderMap(){
+  const m=$('#mapp');if(!m)return;
+  const lvlOf=r=>r.iso==='GULF'?'high':(cdata(r.iso)?cdata(r.iso).lvl:'low');
+  const labels=REG.filter(r=>r.lab).map(r=>{
+    const c=cdata(r.iso);if(!c)return'';
+    const w=Math.max(r.n.length*3.7,LABEL[c.lvl].length*3.4)+9;
+    const [x,y]=[r.lab[0]+180,90-r.lab[1]];
+    return `<g class="mlabel" data-hit="c" data-iso="${r.iso}" style="cursor:pointer" tabindex="0" role="button" aria-label="${r.n}, ${LABEL[c.lvl]}">
+      <rect x="${(x-w/2).toFixed(1)}" y="${(y-8.5).toFixed(1)}" width="${w.toFixed(1)}" height="17.5" rx="2.5" fill="#06101E" fill-opacity=".88" stroke="${COL[c.lvl]}" stroke-width=".7"/>
+      <text x="${x.toFixed(1)}" y="${(y-1.2).toFixed(1)}" text-anchor="middle" font-size="6.2" font-weight="600" fill="#fff">${r.n}</text>
+      <text x="${x.toFixed(1)}" y="${(y+6.2).toFixed(1)}" text-anchor="middle" font-size="5.4" fill="${COL[c.lvl]}">${LABEL[c.lvl]}</text></g>`}).join('');
+  m.innerHTML=`<div class="ph" style="padding:2px 4px 8px"><h3 style="font-size:15px;margin:0">Country-wise Impact</h3>
+    <div class="seg" role="group" aria-label="Map mode"><button aria-pressed="true" data-mm="level">Impact Level</button><button aria-pressed="false" data-mm="details">Details</button></div></div>
+    <div class="mapbox"><svg class="vp" id="msvg" viewBox="40 0 270 175" preserveAspectRatio="xMidYMid meet" role="img" aria-label="World map coloured by country impact level">
+      <g id="mview">
+      ${Object.values(LAND).map(p=>`<polygon class="land" points="${P(p)}"/>`).join('')}
+      ${REG.map(r=>{const l=lvlOf(r);return `<polygon class="cshape" data-hit="c" data-iso="${r.iso}" tabindex="0" role="button" aria-label="${r.n}, ${LABEL[l]}" points="${P(r.pts)}" fill="${COL[l]}" fill-opacity=".72"/>`}).join('')}
+      ${labels}</g></svg>
+      <div class="zoomctl"><button id="mzi" aria-label="Zoom in"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button id="mzo" aria-label="Zoom out"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 12h14"/></svg></button></div></div>
+    <div class="mlegend">${['sev','high','mod','mild','low'].map(l=>`<span><i class="dot" style="background:${COL[l]}"></i>${LABEL[l]}</span>`).join('')}</div>`;
+  const svg=$('#msvg');const vp=viewport(svg,{x:40,y:0,w:270,h:175});
+  $('#mzi').onclick=vp.zoomIn;$('#mzo').onclick=vp.zoomOut;
+  const tip=$('#tip');
+  svg.addEventListener('pointermove',e=>{const h=e.target.closest('[data-iso]');
+    if(!h){tip.style.display='none';return}
+    const iso=h.dataset.iso;const c=cdata(iso);
+    tip.innerHTML=iso==='GULF'?`<b>Gulf states</b><br>${LABEL.high} · exposure 7.4 / 10 (fixture)`:(c?`<b>${c.n}</b><br>${LABEL[c.lvl]} · exposure ${c.sc.toFixed(1)} / 10 · GDP ${c.gdp}% (est.)`:'');
+    tip.style.display='block';tip.style.left=Math.min(innerWidth-250,e.clientX+14)+'px';tip.style.top=(e.clientY+14)+'px'});
+  svg.addEventListener('pointerleave',()=>tip.style.display='none');
+  const act=iso=>{if(iso==='GULF')return toast('Gulf states are grouped in this fixture. Country detail is not available.');openCountry(iso)};
+  svg.addEventListener('click',e=>{if(svg._moved&&Date.now()-svg._moved<250)return;const h=e.target.closest('[data-iso]');if(h)act(h.dataset.iso)});
+  svg.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){const h=e.target.closest('[data-iso]');if(h){e.preventDefault();act(h.dataset.iso)}}});
+  $$('[data-mm]',m).forEach(b=>b.onclick=()=>{if(b.dataset.mm==='details'){S.tab='country';$$('#tabs button').forEach(x=>x.setAttribute('aria-selected',x.dataset.t==='country'));renderStage()}});
+}
+
+const pName=p=>p.nodes.map(id=>{const n=nodeById(id);return n?n.short:id}).join(' → ');
+function renderPaths(){
+  const el=$('#pathp');if(!el)return;
+  if (LIVE_NODES) {
+    el.innerHTML = `<div class="ph"><h3>Key Impact Paths</h3></div>
+      <p class="banner" style="padding:8px 12px 12px">Impact paths are not yet returned by the backend.</p>`;
+    return;
+  }
+  el.innerHTML=`<div class="ph"><h3>Key Impact Paths</h3><button class="link" id="allpaths">View All Paths →</button></div>
+  <div class="paths">${_paths.map(p=>{const l=strLvl(p.score),c=strCol(p.score);
+    return `<button class="pathrow" data-p="${p.id}" aria-pressed="${S.selPath===p.id}"><span class="rk" style="background:${c}">${p.rank}</span>
+    <span style="min-width:0"><b>${esc(pName(p))}</b><small>Strength: <span class="num">${p.score.toFixed(2)}</span> · ${p.len} link${p.len>1?'s':''}</small></span>${pill(l,strength(p.score))}</button>`}).join('')}</div>`;
+  $$('[data-p]',el).forEach(b=>b.onclick=()=>openPath(b.dataset.p));
+  $('#allpaths').onclick=()=>{S.tab='rels';$$('#tabs button').forEach(x=>x.setAttribute('aria-selected',x.dataset.t==='rels'));renderStage();$('#stagewrap').scrollIntoView({behavior:'smooth',block:'start'})};
+}
+
+const WINS={'3M':63,'6M':126,'1Y':252,'All':9999};
+function renderChart(){
+  const el=$('#chartp');if(!el)return;
+  const n=Math.min(WINS[S.win]+1,SERIES.length);const data=SERIES.slice(-n);
+  const ei=data.length-1;
+  const pre=data.slice(0,ei);const preR=(pre[pre.length-1].p/pre[0].p-1)*100;
+  const moveR=(data[ei].p/data[ei-1].p-1)*100;
+  const W=520,H=230,L=36,R=14,T=14,B=26;
+  const min=Math.min(...data.map(d=>d.p)),max=Math.max(...data.map(d=>d.p));
+  const y0=Math.floor((min-2)/10)*10,y1=Math.ceil((max+1)/10)*10;
+  const X=i=>L+i*(W-L-R)/(data.length-1),Y=v=>T+(1-(v-y0)/(y1-y0))*(H-T-B);
+  let ticks='';for(let v=y0;v<=y1;v+=10)ticks+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="#173B5D" stroke-width=".6" stroke-dasharray="2 3"/><text x="${L-6}" y="${Y(v)+3}" text-anchor="end" font-size="9.5" fill="#8FA6C0" font-family="IBM Plex Mono,monospace">${v}</text>`;
+  const xt=[];const step=Math.max(1,Math.round(data.length/5));
+  for(let i=0;i<data.length-1;i+=step)xt.push(i);xt.push(ei);
+  const xlab=xt.filter(i=>i===ei?false:ei-i>step*.45).map(i=>`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="9.5" fill="#8FA6C0">${fmtM(data[i].t)}</text>`).join('')+`<text x="${X(ei)}" y="${H-8}" text-anchor="end" font-size="9.5" fill="#8FA6C0">Apr 2025</text>`;
+  const line=data.map((d,i)=>`${i?'L':'M'}${X(i).toFixed(1)} ${Y(d.p).toFixed(1)}`).join('');
+  el.innerHTML=`<div class="ph"><h3>Historical Context</h3></div>
+    <div class="sub">Brent Crude Oil Price (USD/barrel)</div>
+    <div class="chartwrap"><svg class="vp" id="csvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Brent crude price history ending at the event date.">
+      <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2684FF" stop-opacity=".35"/><stop offset="1" stop-color="#2684FF" stop-opacity="0"/></linearGradient></defs>
+      ${ticks}${xlab}
+      <path d="${line}L${X(ei)} ${H-B}L${X(0)} ${H-B}z" fill="url(#cg)"/>
+      <path d="${line}" fill="none" stroke="#2F8CFF" stroke-width="1.5" stroke-linejoin="round"/>
+      <line x1="${X(ei)}" x2="${X(ei)}" y1="${T}" y2="${H-B}" stroke="#FF4040" stroke-width="1" stroke-dasharray="3 3"/>
+      <circle cx="${X(ei)}" cy="${Y(data[ei].p)}" r="8" fill="#FF4040" opacity=".25"/><circle cx="${X(ei)}" cy="${Y(data[ei].p)}" r="4" fill="#FF4040" stroke="#fff" stroke-width="1"/>
+      <g id="hov" style="display:none"><line id="hl" y1="${T}" y2="${H-B}" stroke="#8FA6C0" stroke-width=".7"/><circle id="hc" r="3.5" fill="#2F8CFF" stroke="#fff" stroke-width="1"/>
+      <g id="ht"><rect id="hr" width="104" height="30" rx="4" fill="#020A14" stroke="#173B5D"/><text id="ht1" x="8" y="13" font-size="9.5" fill="#8FA6C0"></text><text id="ht2" x="8" y="25" font-size="11" fill="#fff" font-family="IBM Plex Mono,monospace"></text></g></g>
+    </svg><div class="evlabel"><div>Event Date</div><div>Apr 19, 2025</div><b class="num">+${moveR.toFixed(0)}%</b></div></div>
+    <div class="winsel" role="group" aria-label="Observation window">${Object.keys(WINS).map(k=>`<button data-w="${k}" aria-pressed="${S.win===k}">${k}</button>`).join('')}<span>closing prices · USD</span></div>
+    <div class="note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      <div>Similar past events: ${HIST.map(h=>h[0]).join(', ')}.<br>Avg. 1-week impact: <b class="num">${HIST[0][1]}</b> · Avg. 1-month impact: <b class="num">${HIST[0][2]}</b></div></div>`;
+  $$('[data-w]',el).forEach(b=>b.onclick=()=>{S.win=b.dataset.w;renderChart()});
+  const svg=$('#csvg');
+  svg.addEventListener('pointermove',e=>{const r=svg.getBoundingClientRect();const x=(e.clientX-r.left)/r.width*W;
+    let i=Math.round((x-L)/(W-L-R)*(data.length-1));i=Math.max(0,Math.min(data.length-1,i));
+    const d=data[i];$('#hov').style.display='';$('#hl').setAttribute('x1',X(i));$('#hl').setAttribute('x2',X(i));
+    $('#hc').setAttribute('cx',X(i));$('#hc').setAttribute('cy',Y(d.p));
+    const tx=Math.min(W-R-104,Math.max(L,X(i)-52)),ty=T+2;$('#ht').setAttribute('transform',`translate(${tx} ${ty})`);
+    $('#ht1').textContent=fmtD(d.t);$('#ht2').textContent='$'+d.p.toFixed(2)});
+  svg.addEventListener('pointerleave',()=>$('#hov').style.display='none');
+}
+
+function renderRail(){
+  const r=$('#rail');if(!r)return;
+  const top=[...(LIVE_COUNTRIES||COUNTRIES)].filter(c=>c.iso!=='OTH').sort((a,b)=>b.sc-a.sc);
+  r.innerHTML=`
+  <section class="panel"><div class="ph"><h3>Market Overview</h3></div><div id="mkt" style="padding:0 12px 12px"></div></section>
+  <section class="panel overall"><div class="ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8CBBFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 13V8M8 5l-1-2M16 5l1-2"/></svg></div>
+    <div><small>Overall Market Impact</small><h2>High</h2><div class="bar"><i style="width:70%;background:var(--sev)"></i></div></div>
+    <span class="conf num">78% confidence</span></section>
+  <section class="panel"><div class="ph"><h3>Country Impact Analysis</h3></div>
+    ${(LIVE_COUNTRIES||COUNTRIES).map(c=>`<div class="crow"><div class="flag" aria-hidden="true">${c.iso==='OTH'?'···':c.iso==='EUU'?'EU':c.iso.slice(0,2)}</div>
+      <div style="min-width:0"><b>${c.n}</b>${pill(c.lvl)}<p>${esc(c.desc)}</p></div>
+      <div style="text-align:right"><span class="gdp"><span style="color:${c.lvl==='low'?'var(--muted)':'#FF8E8E'}">${c.gdp}%</span><small>GDP (est.)</small></span><br><button class="link dl" data-c="${c.iso}">Details →</button></div></div>`).join('')}
+  </section>
+  <section class="panel"><div class="ph"><h3>Top Affected Countries <small style="font-weight:400;color:var(--muted);font-size:11.5px">(by Impact Score)</small></h3></div>
+    <div class="top5">${top.map((c,i)=>`<div class="t5"><span class="n" style="background:${COL[c.lvl]}">${i+1}</span><span>${c.n}</span><div class="bar"><i style="width:${c.sc*10}%;background:${COL[c.lvl]}"></i></div><span class="num">${c.sc.toFixed(1)}</span>${pill(c.lvl)}</div>`).join('')}</div></section>
+  <section class="panel"><div class="ph"><h3>Event Explanation</h3></div>
+    <div class="explain"><div class="why"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#6FB0FF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg>
+      <div><b>Why is this happening?</b>Strikes on Iranian oil facilities may reduce global supply, leading to higher crude oil prices. This can increase energy and transportation costs, raise inflation expectations, and influence interest rates. Countries dependent on oil imports (like India and EU) may face higher import bills, while energy exporters (like the U.S.) could benefit.</div></div>
+      <div class="reltype"><b style="color:var(--muted);font-weight:500;width:100%;font-size:11px">Relationship Type</b>${Object.values(CLS).map(c=>`<div><i class="dot" style="background:${c.c}"></i>${c.n}</div>`).join('')}</div>
+      <div class="kv"><div>Confidence Score<b class="num">0.76 – 0.92</b></div><div>Source<b>Reuters, IMF, EIA</b></div></div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="seeev">View evidence</button></div>
+      <p class="banner">Generated explanation. Alternative explanations and limits are listed with each relationship.</p></div></section>`;
+  $$('[data-c]',r).forEach(b=>b.onclick=()=>openCountry(b.dataset.c));
+  const btn = $('#seeev');
+  if (btn) btn.onclick=()=>openEvidenceAll();
+  renderMkt();
+}
+
+/* ============ Stocks page ============ */
+
+const STOCK_INDICES = ['^NSEI', '^GSPC', '^DJI'];
+const STOCK_INDIAN  = ['RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'INFY.NS', 'ICICIBANK.NS'];
+const STOCK_FOREIGN = ['AAPL', 'MSFT', 'GOOGL', 'TSLA', 'NVDA'];
+
+function sparklineSVG(values, width, height, color) {
+    if (!values || values.length < 2) return '';
+    const w = width, h = height, pad = 2;
+    const min = Math.min(...values), max = Math.max(...values);
+    const range = max - min || 1;
+    const step = (w - pad * 2) / (values.length - 1);
+    const pts = values.map((v, i) => {
+        const x = pad + i * step;
+        const y = pad + (1 - (v - min) / range) * (h - pad * 2);
+        return x.toFixed(1) + ',' + y.toFixed(1);
+    }).join(' ');
+    return '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">' +
+        '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+        '</svg>';
+}
+
+function fmtPrice(p, c) {
+    if (p == null) return '\u2014';
+    if (c === 'INR') return '\u20B9' + p.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    return '$' + p.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+}
+
+function stockCardHTML(q) {
+    if (q.error || q.price == null) {
+        return '<div class="stock-card stock-err"><b>' + esc(q.symbol) + '</b><small>' + esc(q.name) + '</small><p class="banner">Data unavailable</p></div>';
+    }
+    const dir = (q.change_pct || 0) >= 0 ? 'up' : 'dn';
+    const arrowSym = dir === 'up' ? '\u25B2' : '\u25BC';
+    const arrowCol = dir === 'up' ? '#2FBF71' : '#FF4040';
+    const spark = sparklineSVG(q.sparkline, 140, 40, arrowCol);
+    return '<button class="stock-card" data-stock="' + esc(q.symbol) + '">' +
+        '<div class="stock-head"><b>' + esc(q.symbol) + '</b><span class="stock-region">' + esc(q.region) + '</span></div>' +
+        '<small>' + esc(q.name) + '</small>' +
+        '<div class="stock-price">' + fmtPrice(q.price, q.currency) + '</div>' +
+        '<div class="stock-change ' + dir + '">' + arrowSym + ' ' + Math.abs(q.change_pct || 0).toFixed(2) + '%</div>' +
+        '<div class="stock-spark">' + spark + '</div>' +
+        '</button>';
+}
+
+/* ============ Derive tabs/rail from live AI graph ============ */
+
+function liveStrengthLabel(s) {
+    return s >= 0.7 ? 'high' : s >= 0.4 ? 'mod' : 'mild';
+}
+function liveStrengthColor(l) {
+    return l === 'sev' ? COL.sev : l === 'high' ? COL.high : l === 'mod' ? COL.mod : l === 'mild' ? COL.mild : COL.low;
+}
+
+function deriveFromLiveGraph() {
+    try {
+    if (!LIVE_NODES || !LIVE_NODES.length) {
+        LIVE_COUNTRIES = null;
+        LIVE_SECTORS = null;
+        LIVE_ASSETS = null;
+        LIVE_PATHS = null;
+        return;
+    }
+
+    const N = LIVE_NODES;
+    const E = LIVE_EDGES || [];
+
+    // --- Countries ---
+    const countryNodes = N.filter(n => (n.type || '').toUpperCase() === 'COUNTRY');
+    LIVE_COUNTRIES = countryNodes.map(cn => {
+        const touch = E.filter(e => e.a === cn.id || e.b === cn.id);
+        const avg = touch.length ? touch.reduce((a, e) => a + e.s, 0) / touch.length : 0.4;
+        const maxS = touch.length ? Math.max(...touch.map(e => e.s)) : 0.4;
+        const lvl = maxS >= 0.75 ? 'sev' : maxS >= 0.6 ? 'high' : maxS >= 0.45 ? 'mod' : 'mild';
+        // GDP estimate: scale with strength (negative for importers, small positive for exporters).
+        // Naive: assume all countries are net importers unless the label contains "Saudi"/"US"/"USA"/"Russia".
+        const exporter = /saudi|russia|uae|kuwait|norway|canada/i.test(cn.label);
+        const gdp = exporter ? +(maxS * 0.6).toFixed(1) : -+(maxS * 4).toFixed(1);
+        const exposure = +(maxS * 10).toFixed(1);
+        return {
+            iso: (cn.id || cn.label).slice(0, 3).toUpperCase(),
+            n: cn.label,
+            lvl,
+            gdp,
+            sc: exposure,
+            desc: cn.desc || ('Exposure to: ' + (LIVE_EVENT ? LIVE_EVENT.title : 'the event')),
+            direct: [cn.desc || 'Direct exposure'],
+            indirect: ['Second-order effects via trade and prices'],
+            ind: [['Exposure score', exposure + '/10', 'relative', 'live', 'AI graph'],
+                  ['Relationship count', touch.length, 'relative', 'live', 'AI graph']],
+            unc: 'Derived from the current AI graph. Confidence varies by relationship.'
+        };
+    });
+
+    // --- Sectors ---
+    const sectorNodes = N.filter(n => (n.type || '').toUpperCase() === 'SECTOR');
+    LIVE_SECTORS = sectorNodes.map(sn => {
+        const incoming = E.filter(e => e.b === sn.id);
+        const avgStrength = incoming.length ? incoming.reduce((a, e) => a + e.s, 0) / incoming.length : 0.4;
+        // direction from edge.direction if present, else sign of strength
+        let dir = 'f';
+        const dirs = incoming.map(e => {
+            const d = (e.direction || '');
+            if (d === 'POSITIVE') return 'u';
+            if (d === 'NEGATIVE') return 'd';
+            return null;
+        }).filter(Boolean);
+        if (dirs.length) {
+            const up = dirs.filter(d => d === 'u').length;
+            const dn = dirs.filter(d => d === 'd').length;
+            dir = up > dn ? 'u' : dn > up ? 'd' : 'f';
+        }
+        return [
+            sn.label,
+            avgStrength >= 0.7 ? 'high' : avgStrength >= 0.4 ? 'mod' : 'low',
+            dir,
+            avgStrength >= 0.6 ? 'Short' : 'Medium',
+            String(incoming.length || 1)
+        ];
+    });
+
+    // --- Assets (commodities + assets) ---
+    const assetNodes = N.filter(n => ['COMMODITY', 'ASSET'].includes((n.type || '').toUpperCase()));
+    LIVE_ASSETS = assetNodes.map(an => {
+        const touch = E.filter(e => e.a === an.id || e.b === an.id);
+        const maxS = touch.length ? Math.max(...touch.map(e => e.s)) : 0.5;
+        const dirs = touch.map(e => (e.direction || '')).filter(Boolean);
+        const up = dirs.filter(d => d === 'POSITIVE').length;
+        const dn = dirs.filter(d => d === 'NEGATIVE').length;
+        const dirArrow = up > dn ? 'u' : dn > up ? 'd' : 'f';
+        const move = (maxS * 10).toFixed(1);
+        return [
+            an.label,
+            (an.type || 'Asset'),
+            (dirArrow === 'u' ? '+' : dirArrow === 'd' ? '-' : '±') + move + '%',
+            maxS >= 0.7 ? 'high' : maxS >= 0.45 ? 'mod' : 'low',
+            dirArrow,
+            '30 days'
+        ];
+    });
+
+    // --- Key impact paths (BFS) ---
+    // Build adjacency from edges
+    const adj = {};
+    E.forEach(e => {
+        if (!adj[e.a]) adj[e.a] = [];
+        adj[e.a].push({ to: e.b, e });
+    });
+
+    // Pick root = node with highest out-degree
+    let root = null, bestDeg = -1;
+    N.forEach(n => {
+        const d = (adj[n.id] || []).length;
+        if (d > bestDeg) { bestDeg = d; root = n.id; }
+    });
+
+    // Enumerate paths up to depth 4, keep top 4 by geometric mean
+    const found = [];
+    function dfs(node, pathNodes, pathEdges, depth) {
+        if (depth >= 4 || !adj[node]) {
+            if (pathEdges.length >= 2) found.push({ nodes: [...pathNodes], ids: pathEdges.map(x => x && x.e && x.e.id).filter(Boolean) });
+            return;
+        }
+        if (!adj[node].length) {
+            if (pathEdges.length >= 2) found.push({ nodes: [...pathNodes], ids: pathEdges.map(x => x && x.e && x.e.id).filter(Boolean) });
+            return;
+        }
+        adj[node].forEach(({ to, e }) => {
+            if (pathNodes.includes(to)) return;
+            dfs(to, [...pathNodes, to], [...pathEdges, e], depth + 1);
+        });
+    }
+    if (root) dfs(root, [root], [], 0);
+
+    // Score and dedupe
+    const seenKeys = new Set();
+    const scored = found.map(p => {
+        const ed = p.ids.map(id => (LIVE_EDGES || []).find(e => e && e.id === id)).filter(Boolean);
+        if (!ed.length) return null;
+        const score = Math.pow(ed.reduce((a, e) => a * e.s, 1), 1 / ed.length);
+        return { ...p, score, len: ed.length };
+    }).filter(Boolean).filter(p => {
+        const key = p.nodes.join('|');
+        if (seenKeys.has(key)) return false;
+        seenKeys.add(key);
+        return true;
+    }).sort((a, b) => b.score - a.score).slice(0, 4);
+
+    LIVE_PATHS = scored.map((p, i) => ({ ...p, rank: i + 1, id: 'lp' + i }));
+    } catch (e) {
+        console.warn('deriveFromLiveGraph failed:', e && e.message);
+        LIVE_COUNTRIES = null;
+        LIVE_SECTORS = null;
+        LIVE_ASSETS = null;
+        LIVE_PATHS = null;
+    }
+}
+async function renderStocks(m) {
+    m.innerHTML = '<section class="panel view">' +
+        '<h2 style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">' +
+            '<span>Live Stocks</span>' +
+            '<span class="stock-search">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>' +
+                '<input id="stock-q" type="search" placeholder="Search ticker (e.g. WIPRO.NS, AMZN)" autocomplete="off" maxlength="20">' +
+                '<button id="stock-go" type="button">Add</button>' +
+            '</span>' +
+        '</h2>' +
+        '<div class="ep">GET /market/quotes \u00B7 GET /market/candles</div>' +
+        '<div id="stock-search-results"></div>' +
+        '<div id="stocks-body"><p class="banner">Loading quotes\u2026</p></div>' +
+    '</section>';
+
+    // Wire search bar
+    const inp = document.getElementById('stock-q');
+    const btn = document.getElementById('stock-go');
+    const submit = () => {
+        const v = (inp.value || '').trim().toUpperCase();
+        if (!v) return;
+        inp.value = '';
+        searchStock(v);
+    };
+    if (btn) btn.onclick = submit;
+    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+
+    try {
+        const res = await fetch(API_BASE + '/market/quotes', { signal: AbortSignal.timeout(30000) });
+        if (!res.ok) throw new Error('Backend ' + res.status);
+        const data = await res.json();
+        const bySym = {};
+        (data.quotes || []).forEach(q => { bySym[q.symbol] = q; });
+
+        const idx = STOCK_INDICES.map(s => bySym[s]).filter(Boolean);
+        const ind = STOCK_INDIAN.map(s => bySym[s]).filter(Boolean);
+        const frn = STOCK_FOREIGN.map(s => bySym[s]).filter(Boolean);
+
+        const sectionHTML = (title, items) =>
+            '<h3 style="margin:20px 0 10px;font-size:14px;color:var(--fg)">' + title + '</h3>' +
+            '<div class="stock-grid">' + items.map(stockCardHTML).join('') + '</div>';
+
+        document.getElementById('stocks-body').innerHTML =
+            (idx.length ? sectionHTML('Indices', idx) : '') +
+            (ind.length ? sectionHTML('Indian Markets (NSE)', ind) : '') +
+            (frn.length ? sectionHTML('Foreign Markets (US)', frn) : '');
+
+        document.querySelectorAll('[data-stock]').forEach(btn => {
+            btn.onclick = () => openStockDetail(btn.dataset.stock);
+        });
+    } catch (err) {
+        document.getElementById('stocks-body').innerHTML =
+            '<p class="banner">Failed to load: ' + esc(err.message) + '</p>';
+    }
+}
+
+/* ============ Stock search ============ */
+
+async function searchStock(symbol) {
+    const host = document.getElementById('stock-search-results');
+    if (!host) return;
+    // Show loading placeholder for this search
+    host.innerHTML = '<h3 class="stock-search-title">Search Result</h3>' +
+        '<div class="stock-grid"><div class="stock-card stock-err"><b>' + esc(symbol) + '</b><p class="banner">Loading\u2026</p></div></div>';
+
+    try {
+        const url = API_BASE + '/market/quotes?symbols=' + encodeURIComponent(symbol);
+        const res = await fetch(url, { signal: AbortSignal.timeout(30000) });
+        if (!res.ok) throw new Error('Backend ' + res.status);
+        const data = await res.json();
+        const q = (data.quotes || [])[0];
+        if (!q || q.price == null) {
+            host.innerHTML = '<h3 class="stock-search-title">Search Result</h3>' +
+                '<p class="banner">No data for "' + esc(symbol) + '". Try a Yahoo Finance ticker like WIPRO.NS, AMZN, or ^BSESN.</p>';
+            return;
+        }
+        host.innerHTML = '<h3 class="stock-search-title">Search Result \u00B7 <button class="link" id="stock-clear">clear</button></h3>' +
+            '<div class="stock-grid">' + stockCardHTML(q) + '</div>';
+
+        document.querySelectorAll('[data-stock]').forEach(el => {
+            if (!el._wired) {
+                el._wired = true;
+                el.onclick = () => openStockDetail(el.dataset.stock);
+            }
+        });
+        const clr = document.getElementById('stock-clear');
+        if (clr) clr.onclick = () => { host.innerHTML = ''; };
+
+        // Auto-open the drawer for this stock
+        openStockDetail(q.symbol);
+    } catch (err) {
+        host.innerHTML = '<h3 class="stock-search-title">Search Result</h3>' +
+            '<p class="banner">Search failed: ' + esc(err.message) + '</p>';
+    }
+}
+async function openStockDetail(symbol) {
+    openDrawer('Stock', symbol, '<p>Loading chart\u2026</p>');
+    try {
+        const res = await fetch(API_BASE + '/market/candles?symbol=' + encodeURIComponent(symbol) + '&days=30',
+            { signal: AbortSignal.timeout(30000) });
+        if (!res.ok) throw new Error('Backend ' + res.status);
+        const data = await res.json();
+        const candles = data.candles || [];
+        if (candles.length < 2) {
+            document.getElementById('dbody').innerHTML = '<p class="banner">Not enough data.</p>';
+            return;
+        }
+        const closes = candles.map(c => c.close);
+        const first = closes[0], last = closes[closes.length - 1];
+        const changePct = ((last - first) / first * 100);
+        const dir = changePct >= 0 ? '#2FBF71' : '#FF4040';
+
+        // Build SVG price chart
+        const W = 380, H = 180, PAD = 24;
+        const min = Math.min(...closes), max = Math.max(...closes);
+        const range = max - min || 1;
+        const step = (W - PAD * 2) / (closes.length - 1);
+        const pts = closes.map((v, i) => {
+            const x = PAD + i * step;
+            const y = PAD + (1 - (v - min) / range) * (H - PAD * 2);
+            return x.toFixed(1) + ',' + y.toFixed(1);
+        }).join(' ');
+        const dates = candles.map(c => c.date);
+        const xLabels = [dates[0], dates[Math.floor(dates.length/2)], dates[dates.length-1]];
+
+        document.getElementById('dbody').innerHTML =
+            '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">' +
+                '<b style="font-size:14px">' + esc(data.name) + '</b>' +
+                '<span style="font-size:12px;color:var(--muted)">' + esc(data.currency) + '</span>' +
+            '</div>' +
+            '<div style="font-size:22px;font-weight:600;font-family:var(--mono)">' + fmtPrice(last, data.currency) + '</div>' +
+            '<div style="color:' + dir + ';font-weight:600;font-size:13px;margin-bottom:14px">' +
+                (changePct >= 0 ? '\u25B2' : '\u25BC') + ' ' + Math.abs(changePct).toFixed(2) + '% over 30 days' +
+            '</div>' +
+            '<svg width="100%" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet" style="background:var(--panel2);border-radius:6px">' +
+                '<polyline points="' + pts + '" fill="none" stroke="' + dir + '" stroke-width="2" stroke-linejoin="round"/>' +
+                '<text x="' + PAD + '" y="' + (H - 6) + '" font-size="9" fill="#8FA6C0">' + xLabels[0] + '</text>' +
+                '<text x="' + (W/2) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="9" fill="#8FA6C0">' + xLabels[1] + '</text>' +
+                '<text x="' + (W - PAD) + '" y="' + (H - 6) + '" text-anchor="end" font-size="9" fill="#8FA6C0">' + xLabels[2] + '</text>' +
+            '</svg>' +
+            '<h4 style="margin-top:16px">Last 5 sessions</h4>' +
+            '<table class="tbl"><thead><tr><th>Date</th><th>Open</th><th>High</th><th>Low</th><th>Close</th></tr></thead><tbody>' +
+            candles.slice(-5).reverse().map(c =>
+                '<tr><td>' + c.date + '</td><td class="num">' + fmtPrice(c.open, data.currency) + '</td>' +
+                '<td class="num">' + fmtPrice(c.high, data.currency) + '</td>' +
+                '<td class="num">' + fmtPrice(c.low, data.currency) + '</td>' +
+                '<td class="num">' + fmtPrice(c.close, data.currency) + '</td></tr>'
+            ).join('') +
+            '</tbody></table>';
+    } catch (err) {
+        document.getElementById('dbody').innerHTML =
+            '<p class="banner">Failed to load chart: ' + esc(err.message) + '</p>';
+    }
+}
+let lastFocus=null;
+function openDrawer(kind,title,html){
+  lastFocus=document.activeElement;
+  $('#dkind').textContent=kind;$('#dtitle').textContent=title;$('#dbody').innerHTML=html;
+  $('#drawer').classList.add('on');$('#dbody').scrollTop=0;
+}
+function closeDrawer(){
+  $('#drawer').classList.remove('on');
+}
+const srcCard = id => {
+  const sources = LIVE_SOURCES || SOURCES;
+  const s = sources[id];
+  if (!s) return `<div class="src"><b>${id}</b><small>Source details unavailable.</small></div>`;
+  return `<div class="src"><b>${s.pub}</b> <span class="mono" style="color:var(--dim);font-size:11px">${id}</span><small>${s.kind} · ${s.time}</small><q>${esc(s.q)}</q></div>`;
+};
+function wireDrawer(){
+  $$('[data-oe]',$('#dbody')).forEach(b=>b.onclick=()=>openEdge(b.dataset.oe));
+  $$('[data-on]',$('#dbody')).forEach(b=>b.onclick=()=>openNode(b.dataset.on));
+  $$('[data-op]',$('#dbody')).forEach(b=>b.onclick=()=>openPath(b.dataset.op));
+  $$('[data-oc]',$('#dbody')).forEach(b=>b.onclick=()=>openCountry(b.dataset.oc));
+}
+function refreshGraph(){if(S.view==='home'&&S.tab==='graph'&&$('#graphp')){renderGraph();renderPaths()}}
+function openNode(id){
+  S.selNode=id;S.selEdge=null;S.selPath=null;const n=nodeById(id);if(!n)return;
+  const allEdges = LIVE_EDGES || EDGES;
+  const inE=allEdges.filter(e=>e.b===id),outE=allEdges.filter(e=>e.a===id);
+  const list=(arr,dir)=>arr.length?arr.map(e=>{const A=nodeById(e.a),B=nodeById(e.b);return `<button data-oe="${e.id}"><span>${dir==='in'?esc(A?A.short:e.a)+' →':'→ '+esc(B?B.short:e.b)}<br><small class="mono" style="color:var(--dim)">${e.t}</small></span><span class="num">${e.s.toFixed(2)}</span></button>`}).join(''):'<p>None in the current graph.</p>';
+  openDrawer(n.type,n.label+(n.sub?' '+n.sub:''),`
+    <div><h4>Description</h4><p>${esc(n.desc)}</p></div>
+    <div><h4>Identifiers</h4><p class="mono" style="font-size:12px">node_id: ${n.id}<br>label: ${n.type}<br>event_id: ${(LIVE_EVENT||EVENT).id}</p></div>
+    <div><h4>Incoming connections (${inE.length})</h4><div class="conn">${list(inE,'in')}</div></div>
+    <div><h4>Outgoing connections (${outE.length})</h4><div class="conn">${list(outE,'out')}</div></div>
+    <div><h4>Evidence</h4><div style="display:flex;flex-direction:column;gap:8px">${[...new Set([...inE,...outE].flatMap(e=>e.src))].map(srcCard).join('')||'<p>No sources attached.</p>'}</div></div>`);
+  wireDrawer();refreshGraph();
+}
+function openEdge(id){
+  S.selEdge=id;S.selNode=null;S.selPath=null;const e=edgeById(id);if(!e)return;const A=nodeById(e.a),B=nodeById(e.b);
+  const sib=LIVE_NODES?[]:PATHS.filter(p=>p.ids.includes(id));
+  const nextEdges=sib.length?[...new Set(sib.flatMap(p=>p.ids))].filter(x=>x!==id):[];
+  openDrawer('Relationship',`${A?A.short:e.a} → ${B?B.short:e.b}`,`
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><span class="mono" style="font-size:12px;border:1px solid var(--line);border-radius:4px;padding:3px 8px">${e.t}</span>${pill(strLvl(e.s),strength(e.s))}
+      <span><i class="dot" style="background:${CLS[e.cls].c}"></i>${CLS[e.cls].n}</span></div>
+    <p>${REL_DESC[e.t]||'A proposed relationship.'}. Direction: from <b>${esc(A?A.label:e.a)}</b>${A?' ('+A.type+')':''} to <b>${esc(B?B.label:e.b)}</b>${B?' ('+B.type+')':''}.</p>
+    <div><h4>Score components</h4><div class="comp"><div><small>Extraction confidence</small><b>${e.ec.toFixed(2)}</b></div><div><small>Evidence strength</small><b>${e.es.toFixed(2)}</b></div><div><small>Edge score</small><b>${e.s.toFixed(2)}</b></div></div></div>
+    <div><h4>Supporting sources</h4><div style="display:flex;flex-direction:column;gap:8px">${e.src.length?e.src.map(srcCard).join(''):'<p class="banner">No sources attached.</p>'}</div></div>
+    <div><h4>Limitations</h4><div class="warn">${esc(e.lim)}</div></div>
+    ${nextEdges.length?`<div><h4>Other links in connected paths</h4><div class="conn">${nextEdges.map(x=>{const q=edgeById(x);const qa=nodeById(q.a),qb=nodeById(q.b);return `<button data-oe="${x}"><span>${esc(qa?qa.short:q.a)} → ${esc(qb?qb.short:q.b)}</span><span class="num">${q.s.toFixed(2)}</span></button>`}).join('')}</div></div>`:''}`);
+  wireDrawer();refreshGraph();
+}
+function openPath(id){
+  S.selPath=id;S.selNode=null;S.selEdge=null;
+  const p=PATHS.find(x=>x.id===id);
+  if(!p) { console.warn("path not found:", id); return; }
+  const ed=p.ids.map(edgeById);  const prod=ed.reduce((a,e)=>a*e.s,1);
+  openDrawer(`Impact path · rank ${p.rank}`,pName(p),`
+    <div style="display:flex;gap:8px;align-items:center"><b class="num" style="font-size:22px">${p.score.toFixed(2)}</b>${pill(strLvl(p.score),strength(p.score))}<span style="color:var(--muted)">${p.len} links</span></div>
+    <div><h4>How it is ranked</h4><p>Geometric mean of the edge scores:</p>
+      <p class="mono" style="margin-top:6px;font-size:12px;border:1px solid var(--line);border-radius:5px;padding:8px;background:var(--panel2)">S(P) = (${ed.map(e=>e.s.toFixed(2)).join(' × ')})<sup>1/${p.len}</sup><br>= ${prod.toFixed(3)}<sup>1/${p.len}</sup> = ${p.score.toFixed(3)}</p>
+      <p class="banner" style="margin-top:6px">A path-ranking score, not the probability that a company loses money.</p></div>
+    <div><h4>Links and evidence</h4><div class="conn">${ed.map((e,i)=>{const qa=nodeById(e.a),qb=nodeById(e.b);return `<button data-oe="${e.id}"><span><b style="font-weight:600">${i+1}.</b> ${esc(qa?qa.short:e.a)} → ${esc(qb?qb.short:e.b)}<br><small class="mono" style="color:var(--dim)">${e.t} · ${CLS[e.cls].n} · ${e.src.length} source${e.src.length>1?'s':''}</small></span><span class="num">${e.s.toFixed(2)}</span></button>`}).join('')}</div></div>
+    <div><h4>Compare with other paths</h4><div class="conn">${PATHS.filter(x=>x.id!==id).map(x=>`<button data-op="${x.id}"><span>${esc(pName(x))}</span><span class="num">${x.score.toFixed(2)}</span></button>`).join('')}</div></div>
+    <div><h4>Direct or multi-step</h4><div class="warn">${p.len>1?`Multi-step path. ${ed.some(e=>e.cls==='inference')?'At least one link is an unreviewed inference.':'All links are observed or established.'}`:'Direct link.'}</div></div>`);
+  wireDrawer();refreshGraph();
+}
+function openCountry(iso){
+  const c=cdata(iso);if(!c)return;
+  openDrawer('Country exposure',c.n,`
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${pill(c.lvl)}<span class="num">Exposure score ${c.sc.toFixed(1)} / 10</span><span class="num" style="color:var(--muted)">GDP ${c.gdp}% (est.)</span></div>
+    <p>${esc(c.desc)}</p>
+    <div><h4>Direct exposure</h4><p>${c.direct.map(esc).join('<br>')}</p></div>
+    <div><h4>Indirect exposure</h4><p>${c.indirect.map(esc).join('<br>')}</p></div>
+    <div><h4>Indicators</h4><div class="tscroll" style="padding:0"><table class="tbl"><thead><tr><th>Indicator</th><th>Value</th><th>Period</th><th>Source</th></tr></thead><tbody>${c.ind.map(i=>`<tr><td>${esc(i[0])}</td><td>${esc(i[1])}</td><td class="num">${esc(i[3])}</td><td>${esc(i[4])}</td></tr>`).join('')}</tbody></table></div></div>
+    <div><h4>Uncertainty</h4><div class="warn">${esc(c.unc)}</div></div>`);
+  wireDrawer();
+}
+function openEvidenceAll(){
+  openDrawer('Evidence','All sources for this event',`<div style="display:flex;flex-direction:column;gap:8px">${Object.keys(LIVE_SOURCES||SOURCES).map(srcCard).join('')}</div>`);
+  wireDrawer();
+}
+
+function tick(){
+  const d=new Date();const t=d.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true});
+  $('#clock').textContent=t;
+}
+setInterval(tick,30000);tick();
+
+const SEARCH=[...EVENTS.map(e=>({t:e.title,k:'Event',a:()=>{S._nav=e.status==='processed'?'home':'events';go(e.status==='processed'?'home':'events');renderNav()}})),
+  ...NODES.map(n=>({t:n.label,k:n.type,a:()=>{S.view='home';S._nav='graph';S.tab='graph';S.sub='graph';renderNav();renderMain();openNode(n.id)}})),
+  ...COUNTRIES.filter(c=>c.iso!=='OTH').map(c=>({t:c.n,k:'Country',a:()=>openCountry(c.iso)})),
+  ...ASSETS.map(a=>({t:a[0],k:'Asset',a:()=>{S.view='home';S._nav='home';S.tab='assets';renderNav();renderMain()}}))];
+const q=$('#q'),res=$('#results');
+q.addEventListener('input',()=>{
+  const v=q.value.trim().toLowerCase();
+  if(!v){res.classList.remove('on');return}
+  const hits=SEARCH.filter(s=>s.t.toLowerCase().includes(v)).slice(0,8);
+  res.innerHTML=hits.length?hits.map((h,i)=>`<button data-i="${SEARCH.indexOf(h)}" role="option"><span>${esc(h.t)}</span><em>${h.k}</em></button>`).join(''):'<div style="padding:10px;color:var(--muted)">No matches in the fixture data.</div>';
+  res.classList.add('on');
+  $$('button',res).forEach(b=>b.onclick=()=>{res.classList.remove('on');q.value='';SEARCH[+b.dataset.i].a()});
+});
+q.addEventListener('keydown',e=>{if(e.key==='Escape'){res.classList.remove('on');q.blur()}});
+const menus=[['bell','bellmenu'],['userbtn','usermenu']];
+menus.forEach(([b,m])=>{$('#'+b).onclick=e=>{e.stopPropagation();const open=!$('#'+m).classList.contains('on');menus.forEach(([bb,mm])=>{$('#'+mm).classList.remove('on');$('#'+bb).setAttribute('aria-expanded','false')});if(open){$('#'+m).classList.add('on');$('#'+b).setAttribute('aria-expanded','true')}}});
+document.addEventListener('click',e=>{if(!e.target.closest('.menuwrap'))menus.forEach(([bb,mm])=>{$('#'+mm).classList.remove('on');$('#'+bb).setAttribute('aria-expanded','false')});if(!e.target.closest('.search'))res.classList.remove('on')});
+$$('[data-go]').forEach(b=>b.onclick=()=>{S._nav=b.dataset.go;go(b.dataset.go);renderNav()});
+$('#dclose').onclick=()=>{S.selNode=S.selEdge=S.selPath=null;closeDrawer();refreshGraph();if(lastFocus&&lastFocus.focus)try{lastFocus.focus()}catch(e){}};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#drawer').classList.contains('on'))$('#dclose').click()});
+
+async function boot() {
+  const lbl = $('#datalabel');
+  try {
+    const res = await fetch(`${API_BASE}/events`, { signal: AbortSignal.timeout(5000) });
+    if (!res.ok) throw new Error(`Backend ${res.status}`);
+    const events = await res.json();
+    if (!events || !events.length) throw new Error("No predefined events");
+    const a = adaptEvent(events[0]);
+    LIVE_EVENT = a.event; LIVE_NODES = a.nodes; LIVE_EDGES = a.edges; LIVE_SOURCES = a.sources;
+    deriveFromLiveGraph();
+    if (lbl) lbl.textContent = "live (backend)";
+    console.log("Predefined graph loaded from backend");
+  } catch (err) {
+    console.warn("Backend unavailable, using static graph:", err.message);
+    useStaticGraph();
+    if (lbl) lbl.textContent = "static demo";
+  }
+
+  // If someone lands on dashboard.html#home, send them to the landing page.
+  const hash = (location.hash || '').replace('#','');
+  if (hash === 'home') {
+    window.location.replace('index.html');
+    return;
+  }
+
+  renderNav();
+  renderMkt();
+  renderMain();
+  loadNews();
+}
+
+boot();
+</script>
+
+<!-- ============ AI assistant ============ -->
+<div id="ai-chat-btn" title="Ask the AI assistant" aria-label="Open AI assistant">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3a3 3 0 0 0-3 3v1a3 3 0 0 0 0 6v1a3 3 0 0 0 6 0v-1a3 3 0 0 0 0-6V6a3 3 0 0 0-3-3z"/>
+    <path d="M9 12v3a3 3 0 0 0 6 0v-3"/>
+  </svg>
+</div>
+
+<div id="ai-chat-panel" role="dialog" aria-label="AI assistant">
+  <div class="ai-chat-head">
+    <span class="ai-dot"></span>
+    <div><b>FinFlow Assistant</b><small>Ask about markets, or say "take me to ..."</small></div>
+    <button class="ai-x" id="ai-chat-close" aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="ai-chat-body" id="ai-chat-body">
+    <div class="ai-msg bot"><b>Hi, I'm the FinFlow assistant.</b>Ask about market events, or try a shortcut below.</div>
+  </div>
+  <div class="ai-suggest" id="ai-suggest">
+    <button data-ai="Take me to Reliance stock">Reliance stock</button>
+    <button data-ai="Show me the country impact">Country impact</button>
+    <button data-ai="What happens when oil prices spike?">Oil spike impact</button>
+    <button data-ai="Show me the key relationships">Key relationships</button>
+  </div>
+  <div class="ai-chat-foot">
+    <input id="ai-chat-input" type="text" placeholder="Ask anything…" autocomplete="off" maxlength="500">
+    <button id="ai-chat-send">Send</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const btn = document.getElementById('ai-chat-btn');
+  const panel = document.getElementById('ai-chat-panel');
+  const closeBtn = document.getElementById('ai-chat-close');
+  const body = document.getElementById('ai-chat-body');
+  const input = document.getElementById('ai-chat-input');
+  const send = document.getElementById('ai-chat-send');
+  const suggest = document.getElementById('ai-suggest');
+
+  if (!btn) return;
+
+  btn.onclick = () => { panel.classList.toggle('on'); if (panel.classList.contains('on')) setTimeout(() => input.focus(), 50); };
+  closeBtn.onclick = () => panel.classList.remove('on');
+
+  function addMsg(role, html) {
+    const d = document.createElement('div');
+    d.className = 'ai-msg ' + role;
+    d.innerHTML = html;
+    body.appendChild(d);
+    body.scrollTop = body.scrollHeight;
+    return d;
+  }
+
+  function escapeHTML(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function renderReply(text) {
+    // Convert "- " bullets into <li>, everything else into <span> lines
+    const lines = text.split(/\r?\n/);
+    let inList = false, html = '';
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      if (!trimmed) return;
+      if (trimmed.startsWith('- ') || trimmed.startsWith('• ')) {
+        if (!inList) { html += '<ul>'; inList = true; }
+        html += '<li>' + escapeHTML(trimmed.slice(2)) + '</li>';
+      } else {
+        if (inList) { html += '</ul>'; inList = false; }
+        html += '<div>' + escapeHTML(trimmed) + '</div>';
+      }
+    });
+    if (inList) html += '</ul>';
+    return html;
+  }
+
+  async function sendMessage(text) {
+    text = (text || '').trim();
+    if (!text) return;
+    addMsg('user', escapeHTML(text));
+    input.value = '';
+    send.disabled = true;
+    suggest.style.display = 'none';
+    const thinking = addMsg('system', 'Thinking…');
+
+    try {
+      const res = await fetch('http://127.0.0.1:8010/assistant/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text }),
+        signal: AbortSignal.timeout(60000)
+      });
+      if (!res.ok) throw new Error('Backend ' + res.status);
+      const data = await res.json();
+      thinking.remove();
+
+      addMsg('bot', '<b>' + escapeHTML(data.intent || 'REPLY') + '</b>' + renderReply(data.reply || ''));
+
+      // Handle navigation action
+      const a = data.action || { type: 'none' };
+      if (a.type === 'navigate_stock' && a.symbol) {
+        addMsg('system', '→ Opening ' + a.symbol + '…');
+        // Go to stocks view, then search this symbol
+        if (typeof S !== 'undefined') { S.view = 'stocks'; S._nav = 'stocks'; }
+        if (typeof renderNav === 'function') renderNav();
+        if (typeof renderMain === 'function') renderMain();
+        setTimeout(() => {
+          if (typeof searchStock === 'function') searchStock(a.symbol);
+        }, 200);
+      } else if (a.type === 'navigate_tab' && a.tab) {
+        addMsg('system', '→ Opening tab: ' + a.tab);
+        if (typeof S !== 'undefined') { S.view = 'home'; S.tab = a.tab; S._nav = 'home'; }
+        if (typeof renderNav === 'function') renderNav();
+        if (typeof renderMain === 'function') renderMain();
+      } else if (a.type === 'navigate_view' && a.view) {
+        addMsg('system', '→ Opening view: ' + a.view);
+        if (typeof S !== 'undefined') { S.view = a.view; S._nav = a.view; }
+        if (typeof renderNav === 'function') renderNav();
+        if (typeof renderMain === 'function') renderMain();
+      } else if (a.type === 'build_graph' && a.headline) {
+        addMsg('system', '→ Building graph from: ' + a.headline);
+        (async () => {
+          try {
+            const r2 = await fetch('http://127.0.0.1:8010/news/event-graph', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ headline: a.headline }),
+              signal: AbortSignal.timeout(120000)
+            });
+            if (!r2.ok) throw new Error('Backend ' + r2.status);
+            const g = await r2.json();
+            const adapted = adaptEvent(g);
+            LIVE_EVENT = adapted.event; LIVE_NODES = adapted.nodes; LIVE_EDGES = adapted.edges; LIVE_SOURCES = adapted.sources;
+            deriveFromLiveGraph();
+            if (typeof S !== 'undefined') { S.view = 'home'; S.tab = 'graph'; S._nav = 'home'; }
+            renderNav(); renderMain();
+            addMsg('system', '✓ Graph updated.');
+          } catch (e) {
+            addMsg('system', '✗ Graph build failed: ' + e.message);
+          }
+        })();
+      }
+    } catch (err) {
+      thinking.remove();
+      addMsg('bot', '<b>Error</b><div>' + escapeHTML(err.message) + '</div>');
+    } finally {
+      send.disabled = false;
+      suggest.style.display = '';
+    }
+  }
+
+  send.onclick = () => sendMessage(input.value);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(input.value); });
+  suggest.querySelectorAll('[data-ai]').forEach(b => {
+    b.onclick = () => sendMessage(b.dataset.ai);
+  });
+})();
+</script>
+</body></html>

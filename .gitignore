@@ -28,3 +28,13 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .env
+
+# Local backups and patch scripts (do not push)
+*.bak
+*.bak2
+*.bak3
+*.bak_*
+patch_*.py
+sample_response.json
+request.json
+index.vite.html

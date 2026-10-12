@@ -21,6 +21,8 @@ from services.llm_service import analyze_news as analyze_news_with_ai
 from services.market_data_service import fetch_historical_prices
 from services.news_service import fetch_news, NewsServiceError
 from services.scenario_service import get_all_events, match_news
+from services.stock_service import fetch_quotes, fetch_candles
+from services.assistant_service import chat as assistant_chat
 from models.schemas import NewsImpactWorkflowRequest
 from services.news_impact_workflow_service import run_news_impact_workflow
 
@@ -32,11 +34,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -116,7 +115,8 @@ def ai_analyze_news(request: NewsRequest):
         }
 
     except Exception as exc:
-        print(f"AI news analysis failed: {type(exc).__name__}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=502,
             detail="AI news analysis failed. Please try again later.",
@@ -188,12 +188,15 @@ async def create_event_graph(request: EventGraphRequest):
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
+    
     except Exception as exc:
-        print(f"Event graph generation failed: {type(exc).__name__}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=502,
-            detail="Event graph generation failed. Please try again later.",
+            detail=f"Event graph generation failed: {type(exc).__name__}: {exc}",
         ) from exc
+
 
 
 @app.get("/market/history")
@@ -287,4 +290,77 @@ async def news_impact_workflow(request: NewsImpactWorkflowRequest):
         raise HTTPException(
             status_code=502,
             detail="News impact workflow failed. Please try again later.",
+        ) from exc
+
+# ---------- Stock market endpoints (Yahoo Finance via yfinance) ----------
+
+from fastapi import Query as _Query
+
+DEFAULT_SYMBOLS = [
+    "RELIANCE.NS", "TCS.NS", "HDFCBANK.NS", "INFY.NS", "ICICIBANK.NS",
+    "AAPL", "MSFT", "GOOGL", "TSLA", "NVDA",
+    "^NSEI", "^GSPC", "^DJI",
+]
+
+
+@app.get("/market/quotes")
+def get_market_quotes(
+    symbols: str = _Query(
+        default="",
+        description="Comma-separated list of Yahoo Finance tickers. Empty = default set.",
+    ),
+):
+    if symbols.strip():
+        sym_list = [s.strip() for s in symbols.split(",") if s.strip()]
+    else:
+        sym_list = DEFAULT_SYMBOLS
+
+    if len(sym_list) > 25:
+        raise HTTPException(status_code=400, detail="Too many symbols (max 25).")
+
+    try:
+        return {"quotes": fetch_quotes(sym_list)}
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Quote fetch failed: {type(exc).__name__}: {exc}",
+        ) from exc
+
+
+@app.get("/market/candles")
+def get_market_candles(
+    symbol: str = _Query(min_length=1, max_length=20),
+    days: int = _Query(default=30, ge=5, le=365),
+):
+    try:
+        return fetch_candles(symbol=symbol, days=days)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Candle fetch failed: {type(exc).__name__}: {exc}",
+        ) from exc
+# ---------- AI assistant endpoint ----------
+
+from pydantic import BaseModel as _BaseModel, Field as _Field
+
+
+class AssistantRequest(_BaseModel):
+    message: str = _Field(min_length=1, max_length=1000)
+
+
+@app.post("/assistant/chat")
+def assistant_chat_endpoint(request: AssistantRequest):
+    try:
+        result = assistant_chat(request.message)
+        return result
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=502,
+            detail=f"Assistant failed: {type(exc).__name__}: {exc}",
         ) from exc

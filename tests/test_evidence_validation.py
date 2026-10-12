@@ -1,6 +1,6 @@
 
 from services.llm_service import validate_supporting_evidence
-
+from services.llm_service import determine_evidence_match_status
 
 def test_keeps_evidence_found_in_article():
     evidence = [
@@ -77,3 +77,20 @@ def test_evidence_status_can_be_set_explicitly():
 
     assert analysis.evidence_status == "unverified"
     assert analysis.evidence_match_status == "text_matched"
+
+# Test 6: Evidence matching status
+assert determine_evidence_match_status(
+    ["quote A", "quote B"], ["quote A", "quote B"]
+) == "matched"
+
+assert determine_evidence_match_status(
+    ["quote A", "quote B"], ["quote A"]
+) == "partial_match"
+
+assert determine_evidence_match_status(
+    ["quote A"], []
+) == "no_match"
+
+assert determine_evidence_match_status([], []) == "no_evidence"
+
+print("PASS 6: All evidence status cases")

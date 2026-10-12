@@ -1,7 +1,6 @@
-
 import httpx
 import pytest
-
+import services.article_content_service as article_service
 from services.article_content_service import fetch_article_content
 
 
@@ -23,6 +22,9 @@ async def test_extracts_readable_article_text(monkeypatch):
 
     class MockResponse:
         text = html
+        status_code = 200
+        headers = {"content-type": "text/html"}
+        url = "https://example.com/article"
 
         def raise_for_status(self):
             pass
@@ -40,15 +42,11 @@ async def test_extracts_readable_article_text(monkeypatch):
         async def get(self, url):
             return MockResponse()
 
-    monkeypatch.setattr(
-        httpx,
-        "AsyncClient",
-        MockClient,
-    )
+    monkeypatch.setattr(httpx, "AsyncClient", MockClient)
 
     content = await fetch_article_content("https://example.com/article")
 
     assert "RBI changes repo rate" in content
-    assert "central bank announced" in content
+    assert "central bank announced a monetary policy decision" in content
     assert "Navigation menu" not in content
     assert "ignore_this_script" not in content

@@ -18,6 +18,7 @@ from services.event_graph_service import generate_event_graph
 from services.event_impact_service import calculate_event_impact
 from services.financial_news_analysis_service import fetch_and_analyze_news
 from services.llm_service import analyze_news as analyze_news_with_ai
+from services.llm_service import client as _gemini_client, MODEL_NAME as _GEMINI_MODEL
 from services.market_data_service import fetch_historical_prices
 from services.news_service import fetch_news, NewsServiceError
 from services.scenario_service import get_all_events, match_news
@@ -363,4 +364,42 @@ def assistant_chat_endpoint(request: AssistantRequest):
         raise HTTPException(
             status_code=502,
             detail=f"Assistant failed: {type(exc).__name__}: {exc}",
+        ) from exc
+
+# ---------- Quick event summarizer (for the Event Explanation panel) ----------
+
+from pydantic import BaseModel as _BModel, Field as _BField
+
+
+class SummarizeRequest(_BModel):
+    headline: str = _BField(min_length=5, max_length=500)
+
+
+@app.post("/news/summarize")
+def summarize_news(request: SummarizeRequest):
+    """
+    Quick 2-3 sentence explanation of a headline.
+    Uses the same Gemini client as graph generation but with a much shorter prompt.
+    """
+    try:
+        prompt = (
+            "You are a financial analyst. Given the news headline below, write a "
+            "short 2-3 sentence explanation of what is happening and how it may affect "
+            "markets. Be factual and concise. Do not invent specific numbers or quotes.\n\n"
+            "HEADLINE: " + request.headline
+        )
+        response = _gemini_client.models.generate_content(
+            model=_GEMINI_MODEL,
+            contents=prompt,
+        )
+        text = (getattr(response, "text", None) or "").strip()
+        if not text:
+            raise RuntimeError("Empty response from model")
+        return {"ok": True, "summary": text}
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=502,
+            detail=f"Summarize failed: {type(exc).__name__}: {exc}",
         ) from exc

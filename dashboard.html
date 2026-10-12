@@ -60,12 +60,13 @@ a{color:var(--accent)}
 .menuwrap{position:relative}
 
 /* 3-column shell */
-.shell{display:grid;grid-template-columns:260px minmax(0,1fr) 316px;gap:12px;padding:12px 16px 28px;align-items:stretch}
+.shell{display:grid;grid-template-columns:300px minmax(0,1fr);gap:12px;padding:12px 16px 28px;align-items:stretch}
 .shell.norail{grid-template-columns:260px minmax(0,1fr)}
 .shell.noleft{grid-template-columns:minmax(0,1fr) 316px}
 .shell.noleft.norail{grid-template-columns:minmax(0,1fr)}
-.sidebar-left{display:flex;flex-direction:column;gap:10px;min-width:0;align-self:stretch}
-.sidebar-left > .panel{flex:1 1 auto;display:flex;flex-direction:column}
+.sidebar-left{display:flex;flex-direction:column;gap:10px;min-width:0;align-self:flex-start}
+.sidebar-left > .panel{flex:0 0 auto;display:flex;flex-direction:column}
+/* both sidebar panels use natural height */
 .sidebar-left > .panel > .tscroll{flex:1 1 auto}
 
 /* generic panel */
@@ -109,10 +110,10 @@ a{color:var(--accent)}
 
 /* stage */
 .stagewrap{margin-top:8px}
-.stage{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;min-height:560px;align-items:stretch}
+.stage{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;min-height:440px;align-items:stretch}
 .stage > .panel{display:flex;flex-direction:column}
 .subtoggle{display:none;margin-bottom:8px}
-.graphp{position:relative;padding:8px 10px 10px}
+.graphp{position:relative;padding:10px 12px 12px}
 .legend{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;font-size:11.5px;color:var(--muted);padding:2px 4px 6px}
 .legend .sp{margin-left:auto}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:11.5px}
@@ -120,7 +121,7 @@ a{color:var(--accent)}
 .filters{display:none;flex-wrap:wrap;align-items:center;gap:6px;padding:4px 4px 8px}
 .filters.on{display:flex}
 .filters select{background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font:inherit;font-size:12px}
-svg.vp{display:block;width:100%;min-height:560px;height:auto;touch-action:none;user-select:none;-webkit-user-select:none}
+svg.vp{display:block;width:100%;min-height:420px;max-height:460px;height:auto;touch-action:none;user-select:none;-webkit-user-select:none}
 .zoomctl{position:absolute;right:16px;bottom:16px;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:5px;background:var(--panel2);overflow:hidden}
 .zoomctl button{width:30px;height:30px;display:grid;place-items:center;color:var(--fg)}
 .zoomctl button:hover{background:var(--line2)}
@@ -131,8 +132,8 @@ svg.vp{display:block;width:100%;min-height:560px;height:auto;touch-action:none;u
 .dim{opacity:.18}
 .mapp{position:relative;padding:8px 10px 10px;display:flex;flex-direction:column}
 .mapp h3{margin:2px 4px 6px;font-size:15px}
-.mapbox{position:relative;flex:1;min-height:560px;border-radius:5px;background:radial-gradient(120% 90% at 50% 40%,#0A2342,#06152A);overflow:hidden}
-.mapbox svg.vp{height:100%;min-height:560px}
+.mapbox{position:relative;flex:1;min-height:440px;border-radius:5px;background:radial-gradient(120% 90% at 50% 40%,#0A2342,#06152A);overflow:hidden}
+.mapbox svg.vp{height:100%;min-height:440px}
 .land{fill:#123252;stroke:#1D4A73;stroke-width:.35}
 .cshape{cursor:pointer;stroke:#04101F;stroke-width:.4;opacity:.92}
 .cshape:hover,.cshape:focus-visible{opacity:1;stroke:#fff;stroke-width:.7;outline:none}
@@ -150,7 +151,7 @@ svg.vp{display:block;width:100%;min-height:560px;height:auto;touch-action:none;u
 .pathrow small{color:var(--muted);font-size:11px}
 .chartp{padding-bottom:10px}
 .chartp .sub{padding:0 12px;color:var(--fg);font-size:12px}
-.chartwrap{position:relative;padding:4px 10px 0}
+.chartwrap{position:relative;padding:4px 10px 0;max-width:780px}
 .evlabel{position:absolute;right:18px;top:6px;border:1px solid var(--sev);border-radius:4px;background:#2A0E16;padding:3px 8px;font-size:11px;line-height:1.25;text-align:center}
 .evlabel b{color:#FF7070}
 .winsel{display:flex;gap:4px;padding:6px 12px 0;align-items:center}
@@ -290,11 +291,13 @@ svg.vp{display:block;width:100%;min-height:560px;height:auto;touch-action:none;u
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* sector-left helper */
-.sect-left .tscroll{padding:0 6px 10px}
+.sect-left .tscroll{padding:0 8px 10px;overflow-x:visible}
+.sect-left .tbl{font-size:11.5px}
+.sect-left .tbl td,.sect-left .tbl th{padding:6px 6px}
 
 /* responsive */
 @media (max-width:1240px){
-  .shell{grid-template-columns:220px minmax(0,1fr)}
+  .shell{grid-template-columns:280px minmax(0,1fr)}
   .shell.norail{grid-template-columns:220px minmax(0,1fr)}
   .shell.noleft{grid-template-columns:minmax(0,1fr)}
   .shell.noleft.norail{grid-template-columns:minmax(0,1fr)}
@@ -328,6 +331,22 @@ svg.vp{display:block;width:100%;min-height:560px;height:auto;touch-action:none;u
   .overall .conf{display:none}
 }
 @media (prefers-reduced-motion:reduce){.drawer{transition:none}}
+
+/* ============ Historical chart styling ============ */
+.chart-header{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;padding:14px 18px 8px;border-bottom:1px solid var(--line2)}
+.chart-title-block h3{margin:0 0 3px;font-size:15px;font-weight:600;letter-spacing:.2px}
+.chart-title-block .sub{font-size:12px;color:var(--muted)}
+.chart-controls select{background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:7px 10px;font:inherit;font-size:12px;min-width:160px;cursor:pointer}
+.chart-controls select:hover{border-color:#2B63A0}
+.chartwrap{position:relative;padding:12px 18px 0;max-width:1000px;margin:0 auto}
+.chartwrap .evlabel{right:30px;top:14px}
+.winsel{display:flex;gap:4px;padding:10px 18px 4px;align-items:center;flex-wrap:wrap;max-width:1000px;margin:0 auto}
+.winsel button{padding:4px 12px;border:1px solid var(--line);border-radius:5px;font-size:11.5px;color:var(--muted);cursor:pointer;transition:all .15s}
+.winsel button:hover{border-color:#2B63A0;color:var(--fg)}
+.winsel button[aria-pressed="true"]{background:#0D3560;color:var(--fg);border-color:#1A5BA8;font-weight:600}
+.winsel span{margin-left:auto;font-size:11px;color:var(--dim)}
+.note{margin:14px auto 18px;padding:12px 14px;border:1px solid #1A4A80;background:#0A2548;border-radius:6px;font-size:12px;color:#BCD3EE;display:flex;gap:10px;max-width:1000px}
+.note svg{flex:none;color:var(--accent);margin-top:1px}
 
 /* ============ UI POLISH ============ */
 /* Softer panels with subtle shadow */
@@ -444,16 +463,15 @@ section.panel + section.panel{margin-top:8px}
 <nav class="topnav" id="nav" aria-label="Primary"></nav>
 
 <div class="shell">
-  <aside class="sidebar-left sect-left" aria-label="Impact by Sector">
+  <aside class="sidebar-left sect-left" aria-label="Left sidebar">
     <section class="panel" id="sectp"></section>
-  </aside>
-  <main id="main" style="min-width:0"></main>
-  <aside class="rail" id="rail" aria-label="Impact analysis">
-    <div class="panel" id="mkt-panel" aria-label="Market overview">
+    <section class="panel" id="mkt-left" aria-label="Market overview">
       <div class="ph"><h3>Market Overview</h3></div>
       <div id="mkt" style="padding:0 12px 12px"></div>
-    </div>
+    </section>
   </aside>
+  <main id="main" style="min-width:0"></main>
+  <!-- Right rail removed; page is now 2 columns -->
 </div>
 
 <div class="drawer" id="drawer" role="dialog" aria-modal="false" aria-labelledby="dtitle">
@@ -522,9 +540,59 @@ function evidenceClass(t) {
   return "inference";
 }
 function computeNodePositions(nodes) {
-  const cols = Math.max(3, Math.ceil(Math.sqrt(nodes.length * 1.6)));
-  const spacingX = 220, spacingY = 130, startX = 120, startY = 80;
-  return nodes.map((n, i) => ({ ...n, x: startX + (i % cols) * spacingX, y: startY + Math.floor(i / cols) * spacingY }));
+  // Layered layout by node type: event -> commodity/country -> sector -> indicator -> follow-on sectors
+  const LAYERS = {
+    'EVENT':     0,
+    'COMMODITY': 1, 'COUNTRY': 1, 'ASSET': 1,
+    'SECTOR':    2,
+    'INDICATOR': 3,
+    'COMPANY':   4,
+  };
+  const layerOrder = [0, 1, 2, 3, 4];
+
+  // Group nodes by layer, preserving input order
+  const grouped = { 0: [], 1: [], 2: [], 3: [], 4: [] };
+  nodes.forEach(n => {
+    const t = (n.node_type || 'OTHER').toUpperCase();
+    const l = LAYERS[t] !== undefined ? LAYERS[t] : 2;
+    grouped[l].push(n);
+  });
+
+  // Compute the widest layer to determine x spacing
+  const activeLayers = layerOrder.filter(l => grouped[l].length > 0);
+  const numLayers = activeLayers.length;
+  const VIEW_W = 900, VIEW_H = 560;
+  const PAD_X = 110, PAD_Y = 70;
+  const usableW = VIEW_W - PAD_X * 2;
+  const usableH = VIEW_H - PAD_Y * 2;
+
+  // Map layer index -> x position
+  const layerX = {};
+  activeLayers.forEach((l, i) => {
+    if (numLayers === 1) {
+      layerX[l] = VIEW_W / 2;
+    } else {
+      layerX[l] = PAD_X + (usableW * i / (numLayers - 1));
+    }
+  });
+
+  // Within each layer, distribute vertically
+  const out = [];
+  activeLayers.forEach(l => {
+    const items = grouped[l];
+    const n = items.length;
+    items.forEach((node, i) => {
+      let y;
+      if (n === 1) {
+        y = VIEW_H / 2;
+      } else {
+        y = PAD_Y + (usableH * i / (n - 1));
+      }
+      out.push({ ...node, x: Math.round(layerX[l]), y: Math.round(y) });
+    });
+  });
+
+  return out;
 }
 function adaptEvent(be) {
   const event = {
@@ -810,21 +878,35 @@ function renderMkt(){
 function renderMain(){
   const m=$('#main');
   const shell=$('.shell');
-  shell.classList.toggle('noleft',S.view!=='home');
+  shell.classList.toggle('noleft',S.view!=='home' && S.view!=='history' && S.view!=='events');
+  // Market Overview only visible on Home and Event Explorer
+  var _mktEl = document.getElementById('mkt-left');
+  if (_mktEl) {
+    var _showMkt = (S.view === 'home' || S.view === 'events');
+    _mktEl.style.display = _showMkt ? '' : 'none';
+  }
   shell.classList.toggle('norail',S.view!=='home');
   if(S.view==='home'){
     renderSectSidebar();
     renderDashboard(m);
-    $('#rail').style.display='';
+    var _r = $('#rail'); if (_r) _r.style.display='none';
     renderRail();
     return;
   }
-  $('#rail').style.display='none';
+  if(S.view==='history'){
+    renderSectSidebar();
+    return renderHistoryView(m);
+  }
+  if(S.view==='events'){
+    renderSectSidebar();
+    return renderDashboard(m);
+  }
+  var _rail2 = $('#rail'); if (_rail2) _rail2.style.display='none';
   $('#sectp').innerHTML='';
   if(S.view==='events') return renderEvents(m);
   if(S.view==='stocks') return renderStocks(m);
   if(S.view==='watchlist') return simpleView(m,'Watchlist','/api/v1/watchlists',['Entity','Type','Last move','Linked event'],[['Brent Crude','Commodity','+8.0%','Iran oil facilities'],['Airlines','Sector','Fixture only','Iran oil facilities'],['Gold','Commodity','+0.67%','Iran oil facilities'],['India','Country','Moderate','Iran oil facilities']]);
-  if(S.view==='history') return simpleView(m,'Historical Analysis','/api/v1/historical-events',['Comparable event','1-week impact','1-month impact','Note'],HIST.map(h=>[h[0],h[1],h[2],'Fixture values. Missing data and confounders not yet listed.']));
+  if(S.view==='history') return renderHistoryView(m);
   if(S.view==='reports') return simpleView(m,'Reports','/api/v1/reports',['Report','Event','Created','Status'],[['Oil shock summary','evt_001','Oct 11, 2026','Draft'],['Sector exposure brief','evt_001','Oct 11, 2026','Not generated']]);
   if(S.view==='settings') return settingsView(m);
 }
@@ -842,14 +924,8 @@ function settingsView(m){
   $('#setsave').onclick=()=>{S.win=$('#setwin').value;toast('Preferences saved for this session')};
 }
 function renderEvents(m){
-  m.innerHTML=`<section class="panel view"><h2>Event Explorer</h2><div class="ep">GET /api/v1/events ? POST /api/v1/events/{id}/process</div>
-  <div class="tscroll"><table class="tbl"><thead><tr><th>Event</th><th>Type</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody>
-  ${EVENTS.map(e=>`<tr><td><b style="font-weight:500">${esc(e.title)}</b><div class="mono" style="color:var(--dim);font-size:11px">${e.id}</div></td><td>${esc(e.type)}</td><td>${e.date}</td>
-   <td id="st-${e.id}">${statusChip(e)}</td>
-   <td>${e.status==='processed'?`<button class="btn" data-open="${e.id}">Open</button>`:`<button class="btn ghost" data-job="${e.id}">Queue analysis</button>`}</td></tr>`).join('')}
-  </tbody></table></div><p class="banner">Processing runs as a background job: queued, running, completed or failed. Extraction is not re-run when an existing event is opened.</p></section>`;
-  $$('[data-open]',m).forEach(b=>b.onclick=()=>{S._nav='home';S.tab='graph';go('home');renderNav()});
-  $$('[data-job]',m).forEach(b=>b.onclick=()=>runJob(b.dataset.job,b));
+  // Event Explorer now shows the same dashboard as Home.
+  return renderDashboard(m);
 }
 function statusChip(e){
   const j=S.jobs[e.id]; const st=j||e.status;
@@ -864,6 +940,23 @@ function runJob(id,btn){
 }
 
 /* left sidebar */
+function renderHistoryView(m){
+  m.innerHTML = '<section class="panel" style="padding:0">' +
+    '<div class="ph" style="padding:14px 16px 10px;border-bottom:1px solid var(--line2)">' +
+      '<h3 style="font-size:16px;margin:0">Historical Analysis</h3>' +
+      '<span class="banner" style="margin:0">Real market data from Yahoo Finance</span>' +
+    '</div>' +
+    '<div id="chartp" style="padding:0"></div>' +
+  '</section>';
+
+  // Render the chart into this view
+  if (typeof renderChart === 'function') {
+    renderChart();
+    // Reload history if not loaded
+    if (!LIVE_HISTORY) fetchHistory(LIVE_HISTORY_TICKER || 'CL=F');
+  }
+}
+
 function renderSectSidebar(){
   const el=$('#sectp');if(!el)return;
   const sec=S.sect==='Sectors';
@@ -878,26 +971,38 @@ function renderDashboard(m){
   const e = LIVE_EVENT || EVENT;
   m.innerHTML=`
   ${renderNewsPanel()}
-  <section class="panel event" aria-label="Selected event">
+  <section class="panel event" aria-label="Selected event" id="event-card">
     <div class="evicon" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="1" stroke-linejoin="round">${ICON.flame}</svg></div>
     <div style="min-width:0"><span class="cat">${esc(e.cat)}</span>
-      <h1>${esc(e.title)}</h1>
-      <div class="meta">${e.when} ? <a href="${e.url}" target="_blank" rel="noopener noreferrer">${e.pub}</a></div>
-      <p>${esc(e.desc)}</p></div>
+      <h1 id="event-card-title">${esc(e.title)}</h1>
+      <div class="meta">${e.when} \u00b7 <a href="${e.url}" target="_blank" rel="noopener noreferrer">${e.pub}</a></div>
+      <p id="event-card-desc">${esc(e.desc)}</p></div>
     <div class="facts">
       <div class="fact"><small><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Event Type</small><b>${esc(e.type)}</b></div>
       <div class="fact"><small><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="m8 7 8 1M7 8l4 8M17 10l-4 6"/></svg>Affected Assets</small><b>${esc(e.assets)}</b></div>
-      <div class="fact"><small><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 21h18M6 17V9M11 17V5M16 17v-6M21 17V7"/></svg>Initial Impact</small><b>Oil Prices <span class="big num">▲ ${e.move}</span></b></div>
+      <div class="fact"><small><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 21h18M6 17V9M11 17V5M16 17v-6M21 17V7"/></svg>Initial Impact</small><b>Oil Prices <span class="big num">\u25B2 ${e.move}</span></b></div>
     </div>
   </section>
-  <div class="tabs" role="tablist" id="tabs">
+  <section class="panel" id="event-explanation" style="margin-top:10px">
+    <div class="ph"><h3>Event Explanation</h3></div>
+    <div class="explain" style="padding:2px 14px 14px">
+      <div class="why">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#6FB0FF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg>
+        <div id="event-explanation-text"><b>Why is this happening?</b>Strikes on Iranian oil facilities may reduce global supply, leading to higher crude oil prices. This can increase energy and transportation costs, raise inflation expectations, and influence interest rates.</div>
+      </div>
+    </div>
+  </section>
+  <div id="build-graph-row" style="margin-top:10px;display:none">
+    <button class="btn" id="build-graph-btn" style="padding:10px 20px;font-weight:600;font-size:13px">
+      \u26A1 Build Impact Graph for this event
+    </button>
+    <span class="banner" style="margin-left:12px">This will call the AI (20\u201340s).</span>
+  </div>
+  <div class="tabs" role="tablist" id="tabs" style="margin-top:10px">
     ${[['graph','Impact Graph'],['country','Country Impact'],['sectors','Sectors'],['assets','Assets'],['rels','Key Relationships'],['evid','Evidence']].map(([id,l])=>`<button role="tab" data-t="${id}" aria-selected="${S.tab===id}">${l}</button>`).join('')}
   </div>
   <div class="stagewrap" id="stagewrap"></div>
-  <div class="trio">
-    <section class="panel" id="pathp"></section>
-    <section class="panel chartp" id="chartp"></section>
-  </div>`;
+  <section class="panel chartp" id="chartp" style="margin-top:10px"></section>`;
 
   /* Option E: news click → live analysis */
   $$('[data-article-index]').forEach(btn => {
@@ -906,36 +1011,71 @@ function renderDashboard(m){
       const article = NEWS_ARTICLES[idx];
       if (!article) return;
 
-      const originalHTML = btn.innerHTML;
-      const main = $("#main");
-      const overlay = document.createElement("div");
-      overlay.style.cssText = "position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#0D3560;border:1px solid #1A5BA8;border-radius:6px;padding:12px 20px;z-index:9999;font-size:13px;color:#fff;box-shadow:0 8px 24px #0008;display:flex;align-items:center;gap:10px";
-      overlay.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite"></span>Analyzing "' + esc(article.title.slice(0, 60)) + '"... (20-40s)';
-      document.body.appendChild(overlay);
+      const cardTitle = document.getElementById('event-card-title');
+      const cardDesc = document.getElementById('event-card-desc');
+      const cardCat = document.querySelector('#event-card .cat');
+      const cardMeta = document.querySelector('#event-card .meta');
+      const expText = document.getElementById('event-explanation-text');
+      const buildRow = document.getElementById('build-graph-row');
 
-      btn.style.opacity = "0.5";
-      btn.style.pointerEvents = "none";
-      btn.innerHTML = '<b>? Analyzing... please wait 20-40 seconds</b><small>' + esc(article.title.slice(0, 80)) + '</small>';
-
-      try {
-        await fetchLive(article.title);
-        // Rebuild only the stage + rail, not the whole dashboard
-        renderStage();
-        renderPaths();
-        renderChart();
-        renderRail();
-        toast("? Graph updated from: " + article.title.slice(0, 60));
-      } catch (err) {
-        console.warn("Article analysis failed:", err.message);
-        toast("? " + (err.message || "Analysis failed. Try another article."));
-      } finally {
-        btn.style.opacity = "";
-        btn.style.pointerEvents = "";
-        btn.innerHTML = originalHTML;
-        overlay.remove();
+      if (cardTitle) cardTitle.textContent = article.title;
+      if (cardDesc) cardDesc.textContent = 'Selected news story. Click "Build Impact Graph" below to analyze this event with AI.';
+      if (cardCat) cardCat.textContent = 'Selected news';
+      if (cardMeta) {
+        const srcName = article.source || 'Unknown source';
+        const when = (article.published_at || '').slice(0, 16) || '';
+        cardMeta.textContent = when ? (when + ' \u00b7 ' + srcName) : srcName;
       }
+      if (expText) expText.innerHTML = '<b>Awaiting analysis</b>Click "Build Impact Graph" below to generate the impact explanation for this event.';
+
+      window._pendingHeadline = article.title;
+      window._pendingUrl = article.url || null;
+
+      if (buildRow) buildRow.style.display = 'block';
+
+      document.querySelectorAll('[data-article-index]').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+
+      const card = document.getElementById('event-card');
+      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      toast('Loaded: ' + article.title.slice(0, 60));
     };
   });
+
+  // ── Build Graph button handler ──
+  var _bgBtn = document.getElementById('build-graph-btn');
+  if (_bgBtn) {
+    _bgBtn.onclick = async function() {
+      var headline = window._pendingHeadline || (LIVE_EVENT && LIVE_EVENT.title) || 'Iran oil facilities attacked';
+      var url = window._pendingUrl || null;
+
+      var orig = _bgBtn.innerHTML;
+      _bgBtn.disabled = true;
+      _bgBtn.innerHTML = '<span style="display:inline-block;width:12px;height:12px;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;vertical-align:middle;margin-right:6px"></span>Building graph… (20\u201340s)';
+      toast('Building impact graph from: ' + headline.slice(0, 60));
+
+      try {
+        await fetchLive(headline);
+        renderStage();
+        renderChart();
+        var expEl = document.getElementById('event-explanation-text');
+        if (expEl && LIVE_EVENT) {
+          expEl.innerHTML = '<b>Why is this happening?</b>' + (LIVE_EVENT.desc || 'Event analysis generated from the AI graph.');
+        }
+        toast('\u2713 Graph built for: ' + headline.slice(0, 60));
+        // Scroll to the graph
+        var stage = document.getElementById('stagewrap');
+        if (stage) setTimeout(function(){ stage.scrollIntoView({behavior:'smooth', block:'start'}); }, 200);
+      } catch (err) {
+        console.warn('Build graph failed:', err.message);
+        toast('\u2717 ' + (err.message || 'Graph build failed. Try another news article.'));
+      } finally {
+        _bgBtn.disabled = false;
+        _bgBtn.innerHTML = orig;
+      }
+    };
+  }
 
   $$('#tabs button').forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;$$('#tabs button').forEach(x=>x.setAttribute('aria-selected',x===b));renderStage()});
   renderStage();renderPaths();renderChart();
@@ -1237,7 +1377,7 @@ function renderChart(){
     }
   }
   const _showEventMarker = _eventIdx >= 0;
-  const W=520,H=230,L=36,R=14,T=14,B=26;
+  const W=520,H=180,L=36,R=14,T=14,B=26;
   const min=Math.min(...data.map(d=>d.p)),max=Math.max(...data.map(d=>d.p));
   const y0=Math.floor((min-2)/10)*10,y1=Math.ceil((max+1)/10)*10;
   const X=i=>L+i*(W-L-R)/(data.length-1),Y=v=>T+(1-(v-y0)/(y1-y0))*(H-T-B);
@@ -1248,8 +1388,25 @@ function renderChart(){
   const line=data.map((d,i)=>`${i?'L':'M'}${X(i).toFixed(1)} ${Y(d.p).toFixed(1)}`).join('');
   const _markerX = _showEventMarker ? X(_eventIdx) : X(ei);
   const _markerY = _showEventMarker ? Y(data[_eventIdx].p) : Y(data[ei].p);
-  el.innerHTML=`<div class="ph"><h3>Historical Context</h3><select id="hist-ticker" style="background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font:inherit;font-size:11.5px"><option value="CL=F" selected>WTI Crude</option><option value="BZ=F">Brent Crude</option><option value="GC=F">Gold</option><option value="^GSPC">S&amp;P 500</option><option value="^NSEI">Nifty 50</option><option value="^DJI">Dow Jones</option><option value="EURUSD=X">EUR/USD</option></select></div>
-    <div class="sub" id="hist-sub">Crude Oil Price (USD)</div>
+  el.innerHTML=`<div class="chart-header">
+      <div class="chart-title-block">
+        <h3>Historical Context</h3>
+        <div class="sub" id="hist-sub">Crude Oil Price (USD)</div>
+      </div>
+      <div class="chart-controls">
+        <label style="font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:3px">Asset
+          <select id="hist-ticker">
+            <option value="CL=F" selected>WTI Crude</option>
+            <option value="BZ=F">Brent Crude</option>
+            <option value="GC=F">Gold</option>
+            <option value="^GSPC">S&amp;P 500</option>
+            <option value="^NSEI">Nifty 50</option>
+            <option value="^DJI">Dow Jones</option>
+            <option value="EURUSD=X">EUR/USD</option>
+          </select>
+        </label>
+      </div>
+    </div>
     <div class="chartwrap"><svg class="vp" id="csvg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Brent crude price history ending at the event date.">
       <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2684FF" stop-opacity=".35"/><stop offset="1" stop-color="#2684FF" stop-opacity="0"/></linearGradient></defs>
       ${ticks}${xlab}
@@ -1312,6 +1469,10 @@ function renderChart(){
 }
 
 function renderRail(){
+  // Right rail removed by user request; function kept for compatibility.
+  return;
+  /* OLD BODY:
+function renderRail(){
   const r=$('#rail');if(!r)return;
   const top=[...(LIVE_COUNTRIES||COUNTRIES)].filter(c=>c.iso!=='OTH').sort((a,b)=>b.sc-a.sc);
   r.innerHTML=`
@@ -1337,6 +1498,8 @@ function renderRail(){
   const btn = $('#seeev');
   if (btn) btn.onclick=()=>openEvidenceAll();
   renderMkt();
+}
+*/
 }
 
 /* ============ Stocks page ============ */
